@@ -1,0 +1,28 @@
+cmake_minimum_required(VERSION 3.5)
+
+project(TestSuite LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_executable(TestSuite main.cpp
+    iperf.h iperf.cpp
+    stress.h stress.cpp
+
+    test_scenario.h test_scenario.cpp
+
+    metrics.h metrics.cpp
+    test_description.h test_description.cpp
+    test_results.h
+    test_control_client.h test_control_client.cpp
+    test_control_common.h
+    communication.h communication.cpp
+    test_control_server.h test_control_server.cpp
+    test_control_common.cpp
+    custom_tester.h custom_tester.cpp)
+
+include(GNUInstallDirs)
+install(TARGETS TestSuite
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
