@@ -15,19 +15,25 @@ long custom_tester_client::run() {
     void* data = malloc(m_description.datagram_size);
     communication::udp::message_type* msg_type = (communication::udp::message_type*) data;
     *msg_type = communication::udp::CDATA_MSG;
+    size_t msg_size_current = m_description.datagram_size;
 
     long msg_counter = 0;
 
-    struct timespec sleep_duration;
+    struct timespec start_time, end_time, current_time, sleep_duration;
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+    end_time.tv_sec = start_time.tv_sec + m_description.duration_sec;
+    end_time.tv_nsec = start_time.tv_nsec;
     sleep_duration.tv_sec = 0;
     sleep_duration.tv_nsec = m_description.nsec_message_gap;
 
-    auto end_time = std::chrono::steady_clock::now() + std::chrono::seconds(m_description.duration_sec);
-    while(std::chrono::steady_clock::now() < end_time) {
-        size_t msg_size_current = m_description.datagram_size;
+    while(true) {
+        clock_gettime(CLOCK_MONOTONIC, &current_time);
+        if(current_time.tv_sec >= end_time.tv_sec) {
+            break;
+        }
+
         m_comm_client.send(data, msg_size_current);
         msg_counter++;
-
         nanosleep(&sleep_duration, NULL);
     }
 

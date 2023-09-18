@@ -42,7 +42,7 @@ void iperf_client::start() {
         m_thread_ptr = std::unique_ptr<std::thread>(new std::thread(iperf_thread, m_command, std::ref(m_output)));
         break;
     case test_description::metadata::CTEST:
-        custom_tester_client_description c_descr{"10.30.0.1", m_description.connection.ip, 8090, m_description.connection.datagramsize, 6000, m_description.duration};
+        custom_tester_client_description c_descr{"10.0.0.1", m_description.connection.ip, 8090, m_description.connection.datagramsize, 0, m_description.duration};
         m_thread_ptr = std::unique_ptr<std::thread>(new std::thread(custom_tester_thread_client, c_descr, &m_results.custom.num_loss));
         break;
     }
@@ -146,7 +146,7 @@ void iperf_server::load_test(test_description description) {
         }
         break;
     case test_description::metadata::CTEST:
-        custom_tester_server_description s_descr{m_description.connection.ip, "10.30.0.1", 8090, m_description.connection.datagramsize};
+        custom_tester_server_description s_descr{m_description.connection.ip, "10.0.0.1", 8090, m_description.connection.datagramsize};
         m_thread_ptr = std::unique_ptr<std::thread>(new std::thread(custom_tester_thread_server, s_descr));
         break;
     }

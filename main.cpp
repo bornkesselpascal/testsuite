@@ -43,14 +43,14 @@ int main() {
 
 
     client_description m_descr = {
-        test_description::metadata::CTEST, "/testsuite/weekendtest", {500, 700, 21600}, {"10.30.0.2", "10G", 1000}, {"enp1s0f0", "enp1s0f0"}, {"10.30.0.2", 8080}, false, {test_description::stress::CPU_USR, {0, 16, 10}}
+        test_description::metadata::CTEST, "/testsuite/weekendtest", {10, 60, 21600}, {"10.0.0.2", "10G", 1000}, {"enp1s0f0", "enp1s0f0"}, {"10.30.0.2", 8085}, false, {test_description::stress::CPU_USR, {1, 16, 10}}
     };
 
     test_control_client  m_client(m_descr);
     m_client.run();
 
 
-//    custom_tester_client m_test({"10.30.0.1", "10.30.0.2", 8090, 8000, 100, 20});
+//    custom_tester_client m_test({"10.0.0.1", "10.0.0.2", 8095, 50, 20, 10});
 //    int num = m_test.run();
 
 
