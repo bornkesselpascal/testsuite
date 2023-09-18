@@ -27,10 +27,10 @@ iperf_client::iperf_client(test_description description, bool udp) {
     m_command  = "iperf ";
     if(udp)
         m_command += "-u ";
-    m_command += "-c " + std::string(description.connection.ip) + " ";
+    m_command += "-c " + std::string(description.connection.iperf.server_ip) + " ";
     m_command += "-t " + std::to_string(description.duration) + " ";
-    m_command += "-b " + std::string(description.connection.bandwidth) + " ";
-    m_command += "-l " + std::to_string(description.connection.datagramsize) + " ";
+    m_command += "-b " + std::string(description.connection.iperf.bandwidth_limit) + " ";
+    m_command += "-l " + std::to_string(description.connection.iperf.datagram.size) + " ";
 }
 
 void iperf_client::start() {
@@ -42,7 +42,7 @@ void iperf_client::start() {
         m_thread_ptr = std::unique_ptr<std::thread>(new std::thread(iperf_thread, m_command, std::ref(m_output)));
         break;
     case test_description::metadata::CTEST:
-        custom_tester_client_description c_descr{"10.0.0.1", m_description.connection.ip, 8090, m_description.connection.datagramsize, 0, m_description.duration};
+        custom_tester_client_description c_descr{m_description.connection.custom.client_ip, m_description.connection.custom.server_ip, m_description.connection.custom.port, m_description.connection.custom.datagram.size, 0, m_description.duration};
         m_thread_ptr = std::unique_ptr<std::thread>(new std::thread(custom_tester_thread_client, c_descr, &m_results.custom.num_loss));
         break;
     }
@@ -114,7 +114,7 @@ iperf_server::iperf_server(enum test_description::metadata::method method, int d
     m_command  = "iperf -s -w 50M";
     if(udp)
         m_command += "-u ";
-    m_command += "-l " + std::to_string(m_description.connection.datagramsize) + " ";
+    m_command += "-l " + std::to_string(m_description.connection.iperf.datagram.size) + " ";
 }
 
 iperf_server::~iperf_server() {
@@ -146,7 +146,8 @@ void iperf_server::load_test(test_description description) {
         }
         break;
     case test_description::metadata::CTEST:
-        custom_tester_server_description s_descr{m_description.connection.ip, "10.0.0.1", 8090, m_description.connection.datagramsize};
+        struct test_description::connection::custom* m_custom = &m_description.connection.custom;
+        custom_tester_server_description s_descr{m_custom->server_ip, m_custom->client_ip, m_custom->port, m_custom->datagram.size};
         m_thread_ptr = std::unique_ptr<std::thread>(new std::thread(custom_tester_thread_server, s_descr));
         break;
     }

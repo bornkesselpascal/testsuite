@@ -29,9 +29,9 @@ void test_scenario::write_log(bool error, std::string error_message) {
         filestream << "[TD] METADATA T_UID         : " << m_description.metadata.t_uid << std::endl;
         filestream << "[TD] METADATA PATH          : " << m_description.metadata.path << std::endl;
         filestream << "[TD] DURATION               : " << m_description.duration << std::endl;
-        filestream << "[TD] CONNECTION IP          : " << m_description.connection.ip << std::endl;
-        filestream << "[TD] CONNECTION BANDWIDTH   : " << m_description.connection.bandwidth << std::endl;
-        filestream << "[TD] CONNECTION DATAGRAMSIZE: " << m_description.connection.datagramsize << std::endl;
+        //filestream << "[TD] CONNECTION IP          : " << m_description.connection.ip << std::endl;
+        //filestream << "[TD] CONNECTION BANDWIDTH   : " << m_description.connection.bandwidth << std::endl;
+        //filestream << "[TD] CONNECTION DATAGRAMSIZE: " << m_description.connection.datagramsize << std::endl;
         filestream << "[TD] INTERFACE CLIENT       : " << m_description.interface.client << std::endl;
         filestream << "[TD] INTERFACE SERVER       : " << m_description.interface.server << std::endl;
         filestream << "[TD] STRESS TYPE            : " << m_description.stress.type << std::endl;

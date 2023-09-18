@@ -5,6 +5,8 @@ project(TestSuite LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_subdirectory(lib/pugixml-1.13)
+
 add_executable(TestSuite main.cpp
     iperf.h iperf.cpp
     stress.h stress.cpp
@@ -20,6 +22,8 @@ add_executable(TestSuite main.cpp
     test_control_server.h test_control_server.cpp
     test_control_common.cpp
     custom_tester.h custom_tester.cpp)
+
+target_link_libraries(TestSuite PRIVATE pugixml)
 
 include(GNUInstallDirs)
 install(TARGETS TestSuite
