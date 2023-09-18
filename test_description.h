@@ -35,6 +35,11 @@ struct test_description {
             IO,
         } type;
         int num;
+        enum location {
+            LOC_CLIENT,
+            LOC_SERVER,
+            LOC_BOTH,
+        } location;
     } stress;
 };
 
@@ -46,12 +51,12 @@ public:
                                   int duration,
                                   std::string connection_ip, std::string connection_bandwidth, int connection_datagramsize,
                                   std::string interface_client, std::string interface_server,
-                                  enum test_description::stress::type stress_type, int stress_num);
+                                  enum test_description::stress::type stress_type, int stress_num, enum test_description::stress::location stress_location);
     static test_description build(enum test_description::metadata::method metadata_method, std::string metadata_path,
                                   int duration,
                                   std::string connection_ip, std::string connection_bandwidth, int connection_datagramsize,
                                   std::string interface_client, std::string interface_server,
-                                  enum test_description::stress::type stress_type, int stress_num);
+                                  enum test_description::stress::type stress_type, int stress_num, enum test_description::stress::location stress_location);
 
     test_description_builder() = delete;
 };

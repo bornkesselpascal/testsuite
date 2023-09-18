@@ -12,7 +12,7 @@ test_description test_description_builder::build(enum test_description::metadata
                                                  int duration,
                                                  std::string connection_ip, std::string connection_bandwidth, int connection_datagramsize,
                                                  std::string interface_client, std::string interface_server,
-                                                 enum test_description::stress::type stress_type, int stress_num)
+                                                 enum test_description::stress::type stress_type, int stress_num, enum test_description::stress::location stress_location)
 {
     test_description tdb_ret;
     system(("mkdir -p " + metadata_path).c_str());
@@ -51,6 +51,7 @@ test_description test_description_builder::build(enum test_description::metadata
 
     tdb_ret.stress.type = stress_type;
     tdb_ret.stress.num = stress_num;
+    tdb_ret.stress.location = stress_location;
 
     return tdb_ret;
 }
@@ -59,10 +60,10 @@ test_description test_description_builder::build(enum test_description::metadata
                                                  int duration,
                                                  std::string connection_ip, std::string connection_bandwidth, int connection_datagramsize,
                                                  std::string interface_client, std::string interface_server,
-                                                 enum test_description::stress::type stress_type, int stress_num)
+                                                 enum test_description::stress::type stress_type, int stress_num, enum test_description::stress::location stress_location)
 {
     // Generierung der Test-UID im Format UUUUUU_HHMMSS_DDMMYY
-    //      UUUUUU - Random Unique ID
+    //      UUUUUU - Random ID
     //      HHMMSS - Stunden, Minuten und Sekunden (Erstellung der Test Description)
     //      DDMMYY - Tag, Monat, Jahr (Erstellung der Test Description)
 
@@ -81,7 +82,11 @@ test_description test_description_builder::build(enum test_description::metadata
                    << std::setw(2) << time_info->tm_mday << std::setw(2) << (time_info->tm_mon + 1) << std::setw(2) << (time_info->tm_year % 100);
     generated_u_tid += formatted_time.str();
 
-    return build(metadata_method, generated_u_tid, metadata_path, duration, connection_ip, connection_bandwidth, connection_datagramsize, interface_client, interface_server, stress_type, stress_num);
+    return build(metadata_method, generated_u_tid, metadata_path,
+                 duration,
+                 connection_ip, connection_bandwidth, connection_datagramsize,
+                 interface_client, interface_server,
+                 stress_type, stress_num, stress_location);
 }
 
 size_t strlcpy(char* dst, const char* src, size_t dst_len) {

@@ -29,7 +29,7 @@ void test_control_client::run() {
                 m_description.duration.min_duration,
                 m_description.target_connection.ip, m_description.target_connection.bandwidth, m_description.target_connection.datagramsize,
                 m_description.interface.client, m_description.interface.server,
-                m_description.stress.type, int(c_stress_current));
+                m_description.stress.type, int(c_stress_current), m_description.stress.location);
             test_results     c_mindur_res = perform_scenario(c_mindur_tdf);
             if((c_mindur_tdf.metadata.method == test_description::metadata::IPERF) && (c_mindur_res.iperf.num_loss > 0)) {
                 if(!(c_stress_current <= m_description.stress.num.num_min)) {
@@ -59,7 +59,7 @@ void test_control_client::run() {
                 m_description.duration.mid_duration,
                 m_description.target_connection.ip, m_description.target_connection.bandwidth, m_description.target_connection.datagramsize,
                 m_description.interface.client, m_description.interface.server,
-                m_description.stress.type, int(c_stress_current));
+                m_description.stress.type, int(c_stress_current), m_description.stress.location);
             test_results     c_middur_res = perform_scenario(c_middur_tdf);
             if((c_middur_tdf.metadata.method == test_description::metadata::IPERF) && (c_middur_res.iperf.num_loss > 0)) {
                 if(!(c_stress_current <= m_description.stress.num.num_min)) {
@@ -89,7 +89,7 @@ void test_control_client::run() {
                 m_description.duration.max_duration,
                 m_description.target_connection.ip, m_description.target_connection.bandwidth, m_description.target_connection.datagramsize,
                 m_description.interface.client, m_description.interface.server,
-                m_description.stress.type, int(c_stress_current));
+                m_description.stress.type, int(c_stress_current), m_description.stress.location);
             test_results     c_maxdur_res = perform_scenario(c_maxdur_tdf);
             test_control_common::log_scenario(c_maxdur_tdf, &c_maxdur_res);
         }

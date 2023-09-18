@@ -42,6 +42,7 @@ struct client_description {
             int num_max;
             int steps;
         } num;
+        enum test_description::stress::location location;
     } stress;
 };
 

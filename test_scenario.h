@@ -36,7 +36,6 @@ protected:
 
 private:
     std::unique_ptr<iperf_client> m_client_ptr;
-
 };
 
 class test_scenario_server : public test_scenario
@@ -51,8 +50,6 @@ protected:
 
 private:
     std::shared_ptr<iperf_server> m_server_ptr;
-
 };
-
 
 #endif // TEST_SCENARIO_H

@@ -12,8 +12,6 @@ public:
     void stop();
 
 private:
-    test_description m_description;
-
     pid_t m_pid_stress;
     pid_t m_pid_nmon;
 };
