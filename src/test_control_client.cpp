@@ -5,107 +5,76 @@
 
 test_control_client::test_control_client(client_description description)
     : m_description(description)
-    , m_comm_client(m_description.svc_connection.ip, m_description.svc_connection.port)
+    , m_comm_client(m_description.service_connection.server_ip, m_description.service_connection.port)
 {
     system(("mkdir -p " + std::string(m_description.path)).c_str());
-    test_control_common::log_control(m_description);
+    test_control_logger::log_control(m_description);
 }
 
 void test_control_client::run() {
-    // Stress
     if(m_description.stress.num.steps < 2) {
-        // print error here and abort
+        std::cerr << "[tc_client] E01 - You need at least 2 stress steps." << std::endl;
         return;
     }
     double c_stress_current  = m_description.stress.num.num_max;                                                                                                    // start with the highest level
     double c_stress_stepsize = ((double) (m_description.stress.num.num_max - m_description.stress.num.num_min)) / ((double) (m_description.stress.num.steps - 1));  // calculate stepsize
+    bool   c_stress_loss_occured = false;
 
+    int c_duration_current = m_description.duration.short_duration;
+    int c_datagramsize_current = m_description.target_connection.datagram.size_max;
+    int c_datagramsize_steps = m_description.target_connection.datagram.size_max / (m_description.target_connection.datagram.steps - 1);
 
     while(true) {
-//        if(m_description.duration.min_duration != -1) {
-//            // Execution of a test with duration.min_duration
-////            test_description c_mindur_tdf = test_description_builder::build(
-////                m_description.method, m_description.path,
-////                m_description.duration.min_duration,
-////                m_description.target_connection.ip, m_description.target_connection.bandwidth, m_description.target_connection.datagramsize,
-////                m_description.interface.client, m_description.interface.server,
-////                m_description.stress.type, int(c_stress_current), m_description.stress.location);
-//            test_results     c_mindur_res = perform_scenario(c_mindur_tdf);
-//            if((c_mindur_tdf.metadata.method == test_description::metadata::IPERF) && (c_mindur_res.iperf.num_loss > 0)) {
-//                if(!(c_stress_current <= m_description.stress.num.num_min)) {
-//                    c_stress_current -= c_stress_stepsize;
-//                }
-//                else {
-//                    break;
-//                }
-//                continue;   // We continue with a test with lower stress level.
-//            }
-//            else if((c_mindur_tdf.metadata.method == test_description::metadata::CTEST) && (c_mindur_res.custom.num_loss > 0)){
-//                if(!(c_stress_current <= m_description.stress.num.num_min)) {
-//                    c_stress_current -= c_stress_stepsize;
-//                }
-//                else {
-//                    break;
-//                }
-//                continue;   // We continue with a test with lower stress level.
-//            }
-//            test_control_common::log_scenario(c_mindur_tdf, &c_mindur_res);
-//        }
+        test_description current_description = test_description_builder::simple_build(m_description, c_duration_current, c_datagramsize_current, c_stress_current);
+        test_results     current_results = perform_scenario(current_description);
 
-//        if(m_description.duration.mid_duration != -1) {
-//            // Execution of a test with duration.mid_duration
-//            test_description c_middur_tdf = test_description_builder::build(
-//                m_description.method, m_description.path,
-//                m_description.duration.mid_duration,
-//                m_description.target_connection.ip, m_description.target_connection.bandwidth, m_description.target_connection.datagramsize,
-//                m_description.interface.client, m_description.interface.server,
-//                m_description.stress.type, int(c_stress_current), m_description.stress.location);
-//            test_results     c_middur_res = perform_scenario(c_middur_tdf);
-//            if((c_middur_tdf.metadata.method == test_description::metadata::IPERF) && (c_middur_res.iperf.num_loss > 0)) {
-//                if(!(c_stress_current <= m_description.stress.num.num_min)) {
-//                    c_stress_current -= c_stress_stepsize;
-//                }
-//                else {
-//                    break;
-//                }
-//                continue;   // We continue with a test with lower stress level.
-//            }
-//            else if((c_middur_tdf.metadata.method == test_description::metadata::CTEST) && (c_middur_res.custom.num_loss > 0)){
-//                if(!(c_stress_current <= m_description.stress.num.num_min)) {
-//                    c_stress_current -= c_stress_stepsize;
-//                }
-//                else {
-//                    break;
-//                }
-//                continue;   // We continue with a test with lower stress level.
-//            }
-//            test_control_common::log_scenario(c_middur_tdf, &c_middur_res);
-//        }
+        if(get_loss_counter(current_results) > 0) {
+            c_stress_loss_occured = true;
+        }
 
-//        if(m_description.duration.max_duration != -1) {
-//            // Execution of a test with duration.max_duration
-//            test_description c_maxdur_tdf = test_description_builder::build(
-//                m_description.method, m_description.path,
-//                m_description.duration.max_duration,
-//                m_description.target_connection.ip, m_description.target_connection.bandwidth, m_description.target_connection.datagramsize,
-//                m_description.interface.client, m_description.interface.server,
-//                m_description.stress.type, int(c_stress_current), m_description.stress.location);
-//            test_results     c_maxdur_res = perform_scenario(c_maxdur_tdf);
-//            test_control_common::log_scenario(c_maxdur_tdf, &c_maxdur_res);
-//        }
+        if(c_duration_current == m_description.duration.short_duration) {
+            if(get_loss_counter(current_results) == 0) {
+                // Es trat kein Verlust beim kurzen Test auf.
+                //    -> Fortfahren mit langem Test.
 
-
-        if(!(c_stress_current <= m_description.stress.num.num_min)) {
-            c_stress_current -= c_stress_stepsize;
+                c_duration_current = m_description.duration.long_duration;
+                continue;
+            }
         }
         else {
-            break;
+            c_duration_current = m_description.duration.short_duration;
+        }
+
+        c_datagramsize_current -= c_datagramsize_steps;
+        if(c_datagramsize_current < 0) {
+            // Es wurden alle Datagramgroessen getestet.
+            //    -> Fortfahren mit niedrigerem Stresslevel.
+
+            c_datagramsize_current = m_description.target_connection.datagram.size_max;
+
+            if(c_stress_loss_occured) {
+                c_stress_loss_occured = false;
+            }
+            else {
+                // Es wurde kein Verlust erkannt, niedrige Stressoren sollen (nach Absprache) dann nicht getestet werden.
+                //    -> Beenden von Test Control.
+
+                break;
+            }
+
+            c_stress_current -= c_stress_stepsize;
+            if(c_stress_current < m_description.stress.num.num_min) {
+                // Es wurden alle Stress-Level getestet.
+                //    -> Beenden von Test Control.
+
+                break;
+            }
+            continue;
         }
     }
 }
 
 test_results test_control_client::perform_scenario(test_description testdescription) {
-    system(("mkdir -p " + std::string(testdescription.metadata.path)).c_str());
     test_scenario_client current_scenario(testdescription);
 
     sleep(1);
@@ -115,7 +84,7 @@ test_results test_control_client::perform_scenario(test_description testdescript
         td_m.description = testdescription;
         int bytes_send = m_comm_client.send(&td_m, sizeof(td_m));
         if(bytes_send != sizeof(td_m)) {
-            std::cerr << "[tc_client] E01 - Error when sending data." << std::endl;
+            std::cerr << "[tc_client] E02 - Error when sending data." << std::endl;
         }
     }
 
@@ -130,9 +99,24 @@ test_results test_control_client::perform_scenario(test_description testdescript
         communication::udp::message_type m_type = communication::udp::TSTOP_MSG;
         int bytes_send = m_comm_client.send(&m_type, sizeof(m_type));
         if(bytes_send != sizeof(m_type)) {
-            std::cerr << "[tc_client] E02 - Error when sending data." << std::endl;
+            std::cerr << "[tc_client] E03 - Error when sending data." << std::endl;
         }
     }
 
-    return current_scenario.get_results();
+    test_results current_results = current_scenario.get_results();
+    test_control_logger::log_description(testdescription, &current_results);
+    return current_results;
+}
+
+long long int test_control_client::get_loss_counter(test_results &results) {
+    switch(m_description.method) {
+    case test_description::metadata::IPERF:
+        return results.iperf.num_loss;
+        break;
+    case test_description::metadata::CUSTOM:
+        return results.custom.num_loss;
+        break;
+    }
+
+    return -1;
 }

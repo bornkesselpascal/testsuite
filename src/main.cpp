@@ -1,6 +1,6 @@
 #include "iperf.h"
 #include "stress.h"
-#include "test_control_common.h"
+#include "test_control.h"
 #include "test_control_server.h"
 #include "test_scenario.h"
 #include <iostream>
@@ -42,12 +42,12 @@ int main() {
 //    m_server.run();
 
 
-    client_description m_descr = {
-        test_description::metadata::CTEST, "/testsuite/weekendtest", {10, 60, 21600}, {"10.0.0.2", "10G", 1000}, {"enp1s0f0", "enp1s0f0"}, {"10.30.0.2", 8085}, false, {test_description::stress::CPU_USR, {1, 16, 10}}
-    };
+//    client_description m_descr = {
+//        test_description::metadata::CUSTOM, "/testsuite/weekendtest", {10, 60, 21600}, {"10.0.0.2", "10G", 1000}, {"enp1s0f0", "enp1s0f0"}, {"10.30.0.2", 8085}, false, {test_description::stress::CPU_USR, {1, 16, 10}}
+//    };
 
-    test_control_client  m_client(m_descr);
-    m_client.run();
+//    test_control_client  m_client(m_descr);
+//    m_client.run();
 
 
 //    custom_tester_client m_test({"10.0.0.1", "10.0.0.2", 8095, 50, 20, 10});

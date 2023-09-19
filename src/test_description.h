@@ -2,6 +2,9 @@
 #define TEST_DESCRIPTION_H
 
 #include <string>
+#include "communication.h"
+
+struct client_description;
 
 struct test_description {
     struct metadata {
@@ -58,16 +61,24 @@ struct test_description {
     } stress;
 };
 
+struct test_description_message {
+    const enum communication::udp::message_type type = communication::udp::DESCR_MSG;
+    struct test_description description;
+};
+
+
 
 class test_description_builder
 {
 public:
-    static test_description build(enum test_description::metadata::method metadata_method, std::string metadata_path,
+    static test_description simple_build(client_description description,
+                                         int duration, int datagramsize, int stress_num);
+    static test_description build(std::string metadata_path,
                                   int duration,
                                   std::string iperf_serverip, std::string iperf_bandwidthlimit, int iperf_datagramsize,
                                   std::string interface_client, std::string interface_server,
                                   enum test_description::stress::type stress_type, int stress_num, enum test_description::stress::location stress_location);
-    static test_description build(enum test_description::metadata::method metadata_method, std::string metadata_path,
+    static test_description build(std::string metadata_path,
                                   int duration,
                                   std::string custom_clientip,std::string custom_serverip, int custom_port, int custom_gap, int custom_datagramsize, bool custom_datagramrandom,
                                   std::string interface_client, std::string interface_server,
@@ -83,8 +94,8 @@ public:
 class test_description_parser
 {
 public:
-    static test_description read_from_XML();
-    static void             write_to_XML(test_description description);
+    static test_description read_from_XML(std::string filename);
+    static void             write_to_XML(std::string filename, test_description &description);
 
     test_description_parser() = delete;
 };

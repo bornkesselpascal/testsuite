@@ -7,12 +7,10 @@ const size_t MAX_MSG_SIZE = sizeof(test_description_message);
 
 test_control_server::test_control_server(server_description description)
     : m_description(description)
-    , m_comm_server(m_description.svc_connection.ip, m_description.svc_connection.port)
+    , m_comm_server(m_description.service_connection.server_ip, m_description.service_connection.port)
 {
-    m_iperf_server_ptr = std::shared_ptr<iperf_server>(new iperf_server(m_description.method, m_description.datagramsize));
-    m_iperf_server_ptr->start();
-
-    test_control_common::log_control(m_description);
+    system(("mkdir -p " + std::string(m_testdescription.metadata.path)).c_str());
+    test_control_logger::log_control(m_description);
 }
 
 void test_control_server::run() {
@@ -51,7 +49,11 @@ void test_control_server::run() {
 }
 
 void test_control_server::handle_DESCR_MSG() {
-    system(("mkdir -p " + std::string(m_testdescription.metadata.path)).c_str());
+    if(m_iperf_server_ptr == nullptr) {
+        m_iperf_server_ptr = std::shared_ptr<iperf_server>(new iperf_server(m_testdescription.metadata.method, m_testdescription.connection.iperf.datagram.size));
+        m_iperf_server_ptr->start();
+    }
+
     m_scenario_ptr = std::unique_ptr<test_scenario_server>(new test_scenario_server(m_testdescription, m_iperf_server_ptr));
     m_scenario_ptr->start();
 }
@@ -62,5 +64,5 @@ void test_control_server::handle_TSTOP_MSG() {
         m_scenario_ptr.release();
     }
 
-    test_control_common::log_scenario(m_testdescription);
+    test_control_logger::log_description(m_testdescription);
 }

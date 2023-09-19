@@ -1,6 +1,7 @@
 #ifndef IPERF_H
 #define IPERF_H
 
+#include "custom_tester.h"
 #include "test_description.h"
 #include "test_results.h"
 #include <atomic>
@@ -12,11 +13,11 @@ class iperf
 public:
     virtual void start() = 0;
     virtual test_results get_results() = 0;
-    std::string get_current_output() { return m_output; }
+    std::string get_current_output() { return m_iperf_output; }
 
 protected:
-    std::string m_command;
-    std::string m_output;
+    std::string m_iperf_command;
+    std::string m_iperf_output;
 
     test_description m_description;
     test_results m_results;
@@ -31,6 +32,8 @@ public:
 
 private:
     std::unique_ptr<std::thread> m_thread_ptr;
+
+    custom_tester_client_description m_custom_description;
 };
 
 class iperf_server : public iperf
@@ -45,6 +48,8 @@ public:
 private:
     std::unique_ptr<std::thread> m_thread_ptr;
     bool m_started = false;
+
+    custom_tester_server_description m_custom_description;
 };
 
 

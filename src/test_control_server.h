@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <mutex>
-#include "test_control_common.h"
+#include "test_control.h"
 #include "communication.h"
 #include "iperf.h"
 #include "test_scenario.h"

@@ -2,29 +2,35 @@
 #define CUSTOM_TESTER_H
 
 #include "communication.h"
+#include "test_results.h"
 #include <string>
 
 struct custom_tester_client_description {
-    std::string own_ip;
+    std::string client_ip;
     std::string server_ip;
     int port = 8090;
-    int datagram_size;
-    int nsec_message_gap;
-    int duration_sec;
+    int gap;                        // Time for one message cycle [ns]
+    struct datagram {
+        int  size;                  // Datagramgroesse
+        bool random;                // Zufaellige Datagramgroesse (im Bereich 0 bis size)
+    } datagram;
+    int duration;                   // Duration of the test [s]
 };
 
 struct custom_tester_server_description {
-    std::string own_ip;
     std::string client_ip;
+    std::string server_ip;
     int port = 8090;
-    int datagram_size;
+    struct datagram {
+        int  size;                  // Datagramgroesse
+    } datagram;
 };
 
 class custom_tester_client
 {
 public:
     custom_tester_client(custom_tester_client_description description);
-    long run();
+    void run(struct test_results::custom* results);
 
 private:
     custom_tester_client_description m_description;
@@ -36,7 +42,7 @@ class custom_tester_server
 {
 public:
     custom_tester_server(custom_tester_server_description description);
-    long run();
+    void run(struct test_results::custom* results);
 
 private:
     custom_tester_server_description m_description;
@@ -47,7 +53,7 @@ private:
 
 struct custom_tester_result_message {
     const enum communication::udp::message_type type = communication::udp::CRESU_MSG;
-    long number_received = -1;
+    long long int number_received = -1;
 };
 
 #endif // CUSTOM_TESTER_H
