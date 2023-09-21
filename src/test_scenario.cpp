@@ -102,8 +102,15 @@ void test_scenario_client::write_log(bool error, std::string error_message) {
     test_scenario::write_log();
 
     if((m_results.status != m_results.STATUS_SUCCESS) && (m_description.metadata.method == test_description::metadata::IPERF)) {
-        std::string filepath = std::string(m_description.metadata.path) + "/" + get_type() + "_";
-        std::ofstream filestream(filepath, std::ios_base::app);
+        std::string basepath = std::string(m_description.metadata.path) + "/" + std::string(m_description.metadata.t_uid);
+        std::string filepath_log = basepath + "/" + get_type() + "_";
+        if(error) {
+            filepath_log += "error_log.txt";
+        }
+        else {
+            filepath_log += "scenario_log.txt";
+        }
+        std::ofstream filestream(filepath_log, std::ios_base::app);
         if(filestream.is_open()) {
             filestream << "[RE] IPERF COMPLETE_OUTPUT  : " << std::endl;
             filestream << m_client_ptr->get_current_output() << std::endl;

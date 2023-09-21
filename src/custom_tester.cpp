@@ -1,4 +1,5 @@
 #include "custom_tester.h"
+#include "helpers.h"
 #include <chrono>
 #include <ctime>
 #include <iostream>
@@ -25,34 +26,38 @@ void custom_tester_client::run(struct test_results::custom* results) {
     *msg_type = communication::udp::CDATA_MSG;
 
     long long int msg_counter = 0;
+    int tmr_misses = 0;
 
-    struct timespec start_time, end_time, current_time, sleep_duration;
+    struct timespec start_time, end_time, current_time;
     clock_gettime(CLOCK_MONOTONIC, &start_time);
     end_time.tv_sec = start_time.tv_sec + m_description.duration;
     end_time.tv_nsec = start_time.tv_nsec;
-    sleep_duration.tv_sec = 0;
-    sleep_duration.tv_nsec = m_description.gap;
+
+    helpers::timer gap_timer;
 
     if(m_description.datagram.random) {
         // RANDOM DATAGRAM SIZE (0 - size)
         size_t msg_size;
+        size_t max_size = m_description.datagram.size;
+        size_t min_size = sizeof(communication::udp::message_type);
+        gap_timer.initialize(m_description.gap);
 
         while(true) {
             clock_gettime(CLOCK_MONOTONIC, &current_time);
             if(current_time.tv_sec >= end_time.tv_sec) {
                 break;
             }
+            msg_size = (std::rand() % (max_size - min_size)) + min_size;
 
-            throw;
-            // TODO: Introduce random datagram size
             m_comm_client.send(data, msg_size);
             msg_counter++;
-            nanosleep(&sleep_duration, NULL);
+            tmr_misses += gap_timer.wait();
         }
     }
     else {
         // FIXED DATAGRAM SIZE (size)
         size_t msg_size = m_description.datagram.size;
+        gap_timer.initialize(m_description.gap);
 
         while(true) {
             clock_gettime(CLOCK_MONOTONIC, &current_time);
@@ -60,11 +65,9 @@ void custom_tester_client::run(struct test_results::custom* results) {
                 break;
             }
 
-            throw;
-            // TODO: Introduce timer
             m_comm_client.send(data, msg_size);
             msg_counter++;
-            nanosleep(&sleep_duration, NULL);
+            tmr_misses += gap_timer.wait();
         }
     }
 
@@ -85,9 +88,11 @@ void custom_tester_client::run(struct test_results::custom* results) {
 
     std::cout << "Packages send    : " << msg_counter << std::endl;
     std::cout << "Packages received: " << server_results.number_received << std::endl;
+    std::cout << "Timer misses     : " << tmr_misses << std::endl;
 
     results->num_total = msg_counter;
     results->num_loss  = (msg_counter - server_results.number_received);
+    results->num_misses = tmr_misses;
 }
 
 

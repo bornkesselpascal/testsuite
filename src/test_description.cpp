@@ -106,7 +106,7 @@ test_description test_description_builder::build(std::string metadata_path,
     tdb_ret.connection.custom.port = custom_port;
     tdb_ret.connection.custom.gap  = custom_gap;
     tdb_ret.connection.custom.datagram.size = custom_datagramsize;
-    tdb_ret.connection.custom.datagram.random = true;
+    tdb_ret.connection.custom.datagram.random = custom_datagramrandom;
 
     strlcpy(tdb_ret.interface.client, interface_client.c_str(), sizeof(tdb_ret.interface.client));
     strlcpy(tdb_ret.interface.server, interface_server.c_str(), sizeof(tdb_ret.interface.server));

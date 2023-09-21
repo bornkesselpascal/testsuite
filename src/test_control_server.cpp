@@ -9,7 +9,7 @@ test_control_server::test_control_server(server_description description)
     : m_description(description)
     , m_comm_server(m_description.service_connection.server_ip, m_description.service_connection.port)
 {
-    system(("mkdir -p " + std::string(m_testdescription.metadata.path)).c_str());
+    system(("mkdir -p " + std::string(m_description.path)).c_str());
     test_control_logger::log_control(m_description);
 }
 
@@ -64,5 +64,5 @@ void test_control_server::handle_TSTOP_MSG() {
         m_scenario_ptr.release();
     }
 
-    test_control_logger::log_description(m_testdescription);
+    test_control_logger::log_scenario(m_description.path, m_testdescription);
 }

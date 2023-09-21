@@ -26,6 +26,7 @@ struct test_results {
     struct custom {
         long long int num_loss = -1;
         long long int num_total = -1;
+        long long int num_misses = -1;
     } custom;
 
     ethtool_statistic ethtool_statistic_start;

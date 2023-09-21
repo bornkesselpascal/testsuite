@@ -2,6 +2,7 @@
 #define TEST_CONTROL_H
 
 #include <string>
+#include <vector>
 #include "test_description.h"
 #include "test_results.h"
 
@@ -26,8 +27,7 @@ struct client_description {
         int port;
         int gap;
         struct datagram {
-            int size_max;
-            int steps;
+            std::vector<int> sizes;
             bool random;
         } datagram;
     } target_connection;
@@ -67,6 +67,8 @@ public:
     static server_description read_server_from_XML(std::string filename);
     static void               write_server_to_XML(std::string filename, server_description &description);
 
+    static std::vector<std::string> read_client_main_XML(std::string filename);
+
     test_control_parser() = delete;
 };
 
@@ -75,9 +77,9 @@ public:
 class test_control_logger
 {
 public:
-    static void log_control    (client_description description);
-    static void log_control    (server_description description);
-    static void log_description(test_description description, test_results* results = nullptr);
+    static void log_control (client_description description);
+    static void log_control (server_description description);
+    static void log_scenario(std::string path, test_description description, test_results* results = nullptr);
 
     test_control_logger() = delete;
 };

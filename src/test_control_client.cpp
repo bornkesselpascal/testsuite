@@ -21,11 +21,10 @@ void test_control_client::run() {
     bool   c_stress_loss_occured = false;
 
     int c_duration_current = m_description.duration.short_duration;
-    int c_datagramsize_current = m_description.target_connection.datagram.size_max;
-    int c_datagramsize_steps = m_description.target_connection.datagram.size_max / (m_description.target_connection.datagram.steps - 1);
+    int c_datagramsize_index = 0;
 
     while(true) {
-        test_description current_description = test_description_builder::simple_build(m_description, c_duration_current, c_datagramsize_current, c_stress_current);
+        test_description current_description = test_description_builder::simple_build(m_description, c_duration_current, m_description.target_connection.datagram.sizes.at(c_datagramsize_index), c_stress_current);
         test_results     current_results = perform_scenario(current_description);
 
         if(get_loss_counter(current_results) > 0) {
@@ -45,12 +44,12 @@ void test_control_client::run() {
             c_duration_current = m_description.duration.short_duration;
         }
 
-        c_datagramsize_current -= c_datagramsize_steps;
-        if(c_datagramsize_current < 0) {
+        c_datagramsize_index++;
+        if(c_datagramsize_index >= m_description.target_connection.datagram.sizes.size()) {
             // Es wurden alle Datagramgroessen getestet.
             //    -> Fortfahren mit niedrigerem Stresslevel.
 
-            c_datagramsize_current = m_description.target_connection.datagram.size_max;
+            c_datagramsize_index = 0;
 
             if(c_stress_loss_occured) {
                 c_stress_loss_occured = false;
@@ -104,7 +103,7 @@ test_results test_control_client::perform_scenario(test_description testdescript
     }
 
     test_results current_results = current_scenario.get_results();
-    test_control_logger::log_description(testdescription, &current_results);
+    test_control_logger::log_scenario(m_description.path, testdescription, &current_results);
     return current_results;
 }
 

@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(lib/pugixml-1.13)
 
-add_executable(TestSuite main.cpp
+add_executable(TestSuite testsuite.cpp
     iperf.h iperf.cpp
     stress.h stress.cpp
     test_scenario.h test_scenario.cpp
@@ -18,7 +18,9 @@ add_executable(TestSuite main.cpp
     communication.h communication.cpp
     test_control_server.h test_control_server.cpp
     test_control.h test_control.cpp
-    custom_tester.h custom_tester.cpp)
+    custom_tester.h custom_tester.cpp
+    helpers.h helpers.cpp
+    )
 
 target_link_libraries(TestSuite PRIVATE pugixml)
 

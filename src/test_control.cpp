@@ -2,6 +2,7 @@
 #include <ctime>
 #include <chrono>
 #include <fstream>
+#include <iostream>
 #include "pugixml.hpp"
 
 
@@ -40,8 +41,10 @@ client_description test_control_parser::read_client_from_XML(std::string filenam
     description.target_connection.port = std::stoi(targetconnection_node.child_value("port"));
     description.target_connection.gap = std::stoi(targetconnection_node.child_value("gap"));
     pugi::xml_node datagram_node = targetconnection_node.child("datagram");
-    description.target_connection.datagram.size_max = std::stoi(datagram_node.child_value("size_max"));
-    description.target_connection.datagram.steps = std::stoi(datagram_node.child_value("steps"));
+    pugi::xml_node sizes_node = datagram_node.child("sizes");
+    for(pugi::xml_node value_node = sizes_node.child("value"); value_node; value_node = value_node.next_sibling("value")) {
+        description.target_connection.datagram.sizes.push_back(value_node.text().as_int());
+    }
     description.target_connection.datagram.random = (std::string(datagram_node.child_value("random")) == "true");
 
     pugi::xml_node interface_node = root.child("interface");
@@ -116,8 +119,10 @@ void test_control_parser::write_client_to_XML(std::string filename, client_descr
     targetconnection_node.append_child("port").text() = std::to_string(description.target_connection.port).c_str();
     targetconnection_node.append_child("gap").text() = std::to_string(description.target_connection.gap).c_str();
     pugi::xml_node datagram_node = targetconnection_node.append_child("datagram");
-    datagram_node.append_child("size_max").text() = std::to_string(description.target_connection.datagram.size_max).c_str();
-    datagram_node.append_child("steps").text() = std::to_string(description.target_connection.datagram.steps).c_str();
+    pugi::xml_node sizes_node = datagram_node.append_child("sizes");
+    for (int sizes : description.target_connection.datagram.sizes) {
+        sizes_node.append_child("value").text() = std::to_string(sizes).c_str();
+    }
     datagram_node.append_child("random").text() = description.target_connection.datagram.random ? "true" : "false";
 
     pugi::xml_node interface_node = root.append_child("interface");
@@ -177,6 +182,32 @@ void test_control_parser::write_client_to_XML(std::string filename, client_descr
     }
 }
 
+std::vector<std::string> test_control_parser::read_client_main_XML(std::string filename) {
+    std::vector<std::string> paths;
+
+    pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load_file(filename.c_str());
+
+    if (result) {
+        pugi::xml_node root = doc.child("description_files");
+
+        if (root) {
+            for (pugi::xml_node path_node = root.child("client_description"); path_node; path_node = path_node.next_sibling("client_description")) {
+                std::string description_path = path_node.child_value("path");
+                std::string execute          = path_node.child_value("execute");
+
+                if("true" == execute) {
+                    paths.push_back(description_path);
+                }
+            }
+        }
+    } else {
+        std::cerr << "XML parsing error: " << result.description() << std::endl;
+    }
+
+    return paths;
+}
+
 server_description test_control_parser::read_server_from_XML(std::string filename) {
     pugi::xml_document doc;
     if(!doc.load_file(filename.c_str())) {
@@ -213,57 +244,135 @@ void test_control_parser::write_server_to_XML(std::string filename, server_descr
 }
 
 void test_control_logger::log_control(client_description description) {
+    std::string filename = std::string(description.path) + "/control_log.xml";
     std::time_t timestamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    std::string filepath = std::string(description.path) + "/control_log.txt";
-    std::ofstream filestream(filepath);
 
-    if(filestream.is_open()) {
-        filestream << "[IM] TYPE               : " << "TEST CONTROL CLIENT LOG" << std::endl;
-        filestream << "[IM] STARTUP            : " << std::ctime(&timestamp);
-        filestream << std::endl << std::endl;
+    pugi::xml_document doc;
+    pugi::xml_node root = doc.append_child("client_log");
+
+    root.append_child("startup").text() = std::ctime(&timestamp);
+
+    if(!doc.save_file(filename.c_str())) {
+        throw std::runtime_error("[tc_logger] E01 - Error while saving XML file.");
     }
-    filestream.close();
 }
 
 void test_control_logger::log_control(server_description description) {
+    std::string filename = std::string(description.path) + "/control_log.xml";
     std::time_t timestamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    std::string filepath = std::string(description.path) + "/control_log.txt";
-    std::ofstream filestream(filepath);
 
-    if(filestream.is_open()) {
-        filestream << "[IM] TYPE               : " << "TEST CONTROL SERVER LOG" << std::endl;
-        filestream << "[IM] STARTUP            : " << std::ctime(&timestamp);
-        filestream << std::endl << std::endl << std::endl;
+    pugi::xml_document doc;
+    pugi::xml_node root = doc.append_child("server_log");
+
+    root.append_child("startup").text() = std::ctime(&timestamp);
+
+    if(!doc.save_file(filename.c_str())) {
+        throw std::runtime_error("[tc_logger] E01 - Error while saving XML file.");
     }
-    filestream.close();
 }
 
-void test_control_logger::log_description(test_description description, test_results* results) {
+void test_control_logger::log_scenario(std::string path, test_description description, test_results* results) {
+    std::string filename = std::string(path) + "/control_log.xml";
     std::time_t timestamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    std::string filepath = std::string(description.metadata.path) + "/control_log.txt";
-    std::ofstream filestream(filepath, std::ios_base::app);
 
-    if(filestream.is_open()) {
-        filestream << "[TC] DESCRIPTION T_UID  : " << description.metadata.t_uid << std::endl;
-        filestream << "[TC] END TIME           : " << std::ctime(&timestamp);
-
-        filestream << "[TD] STRESS (TYPE/NUM)  : " << description.stress.type << "/" << description.stress.num << std::endl;
-        filestream << "[TD] DURATION           : " << description.duration << std::endl;
-
-        if(results != nullptr) {
-            switch(description.metadata.method) {
-            case test_description::metadata::IPERF:
-                filestream << "[RE] STATUS             : " << results->status << std::endl;
-                filestream << "[RE] RESULT (LOSS/TOTAL): " << results->iperf.num_loss << "/" << results->iperf.num_total << std::endl;
-                break;
-
-            case test_description::metadata::CUSTOM:
-                filestream << "[RE] STATUS             : " << results->status << std::endl;
-                filestream << "[RE] RESULT (LOSS/TOAL) : " << results->custom.num_loss << "/" << results->custom.num_total << std::endl;
-                break;
-            }
-        }
-        filestream << std::endl << std::endl << std::endl;
+    pugi::xml_document doc;
+    if(!doc.load_file(filename.c_str())) {
+        throw std::runtime_error("[tc_parser] E01 - Error while loading XML file.");
     }
-    filestream.close();
+
+    pugi::xml_node root = doc.child("client_log");
+    if(!root) {
+        root = doc.child("server_log");
+    }
+
+    pugi::xml_node scenario_node = root.append_child("scenario");
+    scenario_node.append_child("t_uid").text() = description.metadata.t_uid;
+    scenario_node.append_child("log_time").text() = std::ctime(&timestamp);
+
+    switch(description.metadata.method) {
+    case test_description::metadata::IPERF: {
+        scenario_node.append_child("method").text() = "IPERF";
+        break;
+    }
+    case test_description::metadata::CUSTOM: {
+        scenario_node.append_child("method").text() = "CUSTOM";
+        break;
+    }
+    }
+
+    scenario_node.append_child("duration").text() = std::to_string(description.duration).c_str();
+
+    pugi::xml_node stress_node = scenario_node.append_child("stress");
+    switch(description.stress.type) {
+    case test_description::stress::CPU_USR: {
+        stress_node.append_child("type").text() = "CPU_USR";
+        break;
+    }
+    case test_description::stress::CPU_KERNEL: {
+        stress_node.append_child("type").text() = "CPU_KERNEL";
+        break;
+    }
+    case test_description::stress::CPU_REALTIME: {
+        stress_node.append_child("type").text() = "CPU_REALTIME";
+        break;
+    }
+    case test_description::stress::MEMORY: {
+        stress_node.append_child("type").text() = "MEMORY";
+        break;
+    }
+    case test_description::stress::IO: {
+        stress_node.append_child("type").text() = "IO";
+        break;
+    }
+    }
+    stress_node.append_child("num").text() = std::to_string(description.stress.num).c_str();
+    switch(description.stress.location) {
+    case test_description::stress::LOC_CLIENT: {
+        stress_node.append_child("location").text() = "LOC_CLIENT";
+        break;
+    }
+    case test_description::stress::LOC_SERVER: {
+        stress_node.append_child("location").text() = "LOC_SERVER";
+        break;
+    }
+    case test_description::stress::LOC_BOTH: {
+        stress_node.append_child("location").text() = "LOC_BOTH";
+        break;
+    }
+    }
+
+    if(results != nullptr) {
+        pugi::xml_node results_node = scenario_node.append_child("results");
+        switch(results->status) {
+        case test_results::STATUS_FAIL: {
+            results_node.append_child("status").text() = "STATUS_FAIL";
+            break;
+        }
+        case test_results::STATUS_SUCCESS: {
+            results_node.append_child("status").text() = "STATUS_SUCCESS";
+            break;
+        }
+        case test_results::STATUS_UNKNOWN: {
+            results_node.append_child("status").text() = "STATUS_UNKNOWN";
+            break;
+        }
+        }
+        switch(description.metadata.method) {
+        case test_description::metadata::IPERF: {
+            results_node.append_child("num_loss").text() = std::to_string(results->iperf.num_loss).c_str();
+            results_node.append_child("num_total").text() = std::to_string(results->iperf.num_total).c_str();
+            break;
+        }
+        case test_description::metadata::CUSTOM: {
+            results_node.append_child("num_loss").text() = std::to_string(results->custom.num_loss).c_str();
+            results_node.append_child("num_total").text() = std::to_string(results->custom.num_total).c_str();
+            results_node.append_child("num_misses").text() = std::to_string(results->custom.num_misses).c_str();
+            break;
+        }
+        }
+    }
+
+    if(!doc.save_file(filename.c_str())) {
+        throw std::runtime_error("[tc_logger] E01 - Error while saving XML file.");
+    }
 }
