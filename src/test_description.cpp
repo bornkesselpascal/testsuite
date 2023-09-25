@@ -256,7 +256,7 @@ void test_description_parser::write_to_XML(std::string filename, test_descriptio
         custom_node.append_child("gap").text() = std::to_string(description.connection.custom.gap).c_str();
 
         pugi::xml_node datagram_node = custom_node.append_child("datagram");
-        datagram_node.append_child("size").text() = std::to_string(description.connection.iperf.datagram.size).c_str();
+        datagram_node.append_child("size").text() = std::to_string(description.connection.custom.datagram.size).c_str();
         datagram_node.append_child("random").text() = description.connection.custom.datagram.random ? "true" : "false";
         break;
     }
