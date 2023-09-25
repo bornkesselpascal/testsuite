@@ -72,7 +72,7 @@ void custom_tester_client::run(struct test_results::custom* results) {
     }
 
     free(data);
-    sleep(1);
+    sleep(6);
 
     communication::udp::message_type end_message = communication::udp::CSTOP_MSG;
     int bytes_send = m_comm_client.send(&end_message, sizeof(end_message));
@@ -129,6 +129,8 @@ void custom_tester_server::run(struct test_results::custom* results) {
 
     custom_tester_result_message server_results;
     server_results.number_received = msg_counter;
+
+    sleep(1);
 
     int bytes_send = m_comm_client.send(&server_results, sizeof(server_results));
     if(bytes_send == -1) {

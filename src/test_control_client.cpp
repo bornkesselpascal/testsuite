@@ -92,7 +92,7 @@ test_results test_control_client::perform_scenario(test_description testdescript
     current_scenario.start();
     current_scenario.stop();
 
-    sleep(1);
+    sleep(4);
 
     if(!m_description.client_only) {
         communication::udp::message_type m_type = communication::udp::TSTOP_MSG;
