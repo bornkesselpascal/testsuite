@@ -51,6 +51,8 @@ struct test_description {
             CPU_REALTIME,
             MEMORY,
             IO,
+            TIMER,
+            NETWORK,
         } type;
         int num;
         enum location {
@@ -60,6 +62,11 @@ struct test_description {
         } location;
     } stress;
 };
+
+typedef enum test_description::stress::type stress_type;
+typedef enum test_description::stress::location stress_location;
+
+
 
 struct test_description_message {
     const enum communication::udp::message_type type = communication::udp::DESCR_MSG;

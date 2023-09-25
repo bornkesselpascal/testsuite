@@ -70,7 +70,7 @@ bool test_scenario_client::start() {
         m_client_ptr = std::unique_ptr<iperf_client>(new iperf_client(m_description));
         m_client_ptr->start();
 
-        if((m_description.stress.location == test_description::stress::LOC_CLIENT) || (m_description.stress.location == test_description::stress::LOC_BOTH)) {
+        if((m_description.stress.location == test_description::stress::LOC_CLIENT) || (m_description.stress.location == test_description::stress::LOC_BOTH) || (m_description.stress.type == stress_type::NETWORK)) {
             m_stress_ptr = std::unique_ptr<stress>(new stress(m_description));
         }
     } catch (const std::exception& ex) {
@@ -137,7 +137,7 @@ test_scenario_server::test_scenario_server(test_description description, std::sh
 
 bool test_scenario_server::start() {
     try {
-        if((m_description.stress.location == test_description::stress::LOC_SERVER) || (m_description.stress.location == test_description::stress::LOC_BOTH)) {
+        if((m_description.stress.location == test_description::stress::LOC_SERVER) || (m_description.stress.location == test_description::stress::LOC_BOTH) || (m_description.stress.type == stress_type::NETWORK)) {
             m_stress_ptr = std::unique_ptr<stress>(new stress(m_description));
         }
     } catch (const std::exception& ex) {

@@ -20,6 +20,7 @@ add_executable(TestSuite testsuite.cpp
     test_control.h test_control.cpp
     custom_tester.h custom_tester.cpp
     helpers.h helpers.cpp
+    custom_stressor.h custom_stressor.cpp
     )
 
 target_link_libraries(TestSuite PRIVATE pugixml)

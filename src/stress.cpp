@@ -20,7 +20,7 @@ stress::stress(test_description description, bool start_recording)
         }
     }
 
-    if(description.stress.num > 0) {
+    if(description.stress.num > 0 && description.stress.type != stress_type::NETWORK) {
         pid_t pid_stress = fork();
 
         if(-1 == pid_stress) {
@@ -46,6 +46,9 @@ stress::stress(test_description description, bool start_recording)
             case test_description::stress::type::IO:
                 ret = execlp("/usr/bin/stress-ng", "/usr/bin/stress-ng", "--hdd", std::to_string(description.stress.num).c_str(), "-t", std::to_string(duration).c_str(), nullptr);
                 break;
+            case test_description::stress::type::TIMER:
+                ret = execlp("/usr/bin/stress-ng", "/usr/bin/stress-ng", "--timer", std::to_string(description.stress.num).c_str(), "-t", std::to_string(duration).c_str(), nullptr);
+                break;
             }
 
             if(-1 == ret) {
@@ -55,6 +58,10 @@ stress::stress(test_description description, bool start_recording)
             return;
         }
     }
+    else if(description.stress.type == stress_type::NETWORK) {
+        stressor_network = std::unique_ptr<custom_stressor_network>(new custom_stressor_network("/testsuite/custom_stressor/network.xml", (description.duration+2), description.stress.num, description.stress.location));
+        stressor_network->start();
+    }
 }
 
 stress::~stress() {
@@ -62,7 +69,12 @@ stress::~stress() {
 }
 
 void stress::stop()
-{   
+{
     system("killall stress-ng");
     system("killall nmon");
+
+    if(stressor_network != nullptr) {
+        stressor_network->stop();
+        stressor_network.release();
+    }
 }

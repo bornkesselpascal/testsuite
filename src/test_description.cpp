@@ -201,6 +201,12 @@ static test_description read_from_XML(std::string filename) {
     else if(stress_type == "IO") {
         description.stress.type = test_description::stress::IO;
     }
+    else if(stress_type == "TIMER") {
+        description.stress.type = test_description::stress::TIMER;
+    }
+    else if(stress_type == "NETWORK") {
+        description.stress.type = test_description::stress::NETWORK;
+    }
     description.stress.num = std::stoi(stress_node.child_value("num"));
     std::string stress_location = stress_node.child_value("location");
     if(stress_location == "LOC_CLIENT") {
@@ -286,6 +292,14 @@ void test_description_parser::write_to_XML(std::string filename, test_descriptio
     }
     case test_description::stress::IO: {
         stress_node.append_child("type").text() = "IO";
+        break;
+    }
+    case test_description::stress::TIMER: {
+        stress_node.append_child("type").text() = "TIMER";
+        break;
+    }
+    case test_description::stress::NETWORK: {
+        stress_node.append_child("type").text() = "NETWORK";
         break;
     }
     }
