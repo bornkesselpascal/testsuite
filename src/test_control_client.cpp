@@ -7,8 +7,13 @@ test_control_client::test_control_client(client_description description)
     : m_description(description)
     , m_comm_client(m_description.service_connection.server_ip, m_description.service_connection.port)
 {
+    m_description.path = "/testsuite/interest_test_server_rt_repeat";
+    m_description.stress.location = test_description::stress::LOC_SERVER;
+    m_description.duration.short_duration = 100;
+
     system(("mkdir -p " + std::string(m_description.path)).c_str());
     test_control_logger::log_control(m_description);
+
 }
 
 void test_control_client::run() {
@@ -16,60 +21,67 @@ void test_control_client::run() {
         std::cerr << "[tc_client] E01 - You need at least 2 stress steps." << std::endl;
         return;
     }
-    double c_stress_current  = m_description.stress.num.num_max;                                                                                                    // start with the highest level
-    double c_stress_stepsize = ((double) (m_description.stress.num.num_max - m_description.stress.num.num_min)) / ((double) (m_description.stress.num.steps - 1));  // calculate stepsize
+    double c_stress_current  = 15;                                                                                                 // start with the highest level
+    double c_stress_stepsize = 16; // calculate stepsize
     bool   c_stress_loss_occured = false;
 
-    int c_duration_current = m_description.duration.short_duration;
+    // int c_duration_current = m_description.duration.short_duration;
     int c_datagramsize_index = 0;
 
-    while(true) {
-        test_description current_description = test_description_builder::simple_build(m_description, c_duration_current, m_description.target_connection.datagram.sizes.at(c_datagramsize_index), c_stress_current);
-        test_results     current_results = perform_scenario(current_description);
+    for(const auto e: {test_description::stress::CPU_REALTIME}) {
+        while(true) {
+            int gap_ns = 10000; // 10 us
+            while(gap_ns > 0) {
+                std::cout << m_description.duration.short_duration << "   gap " << gap_ns << "  datagram_size " << m_description.target_connection.datagram.sizes.at(c_datagramsize_index) << std::endl;
+                test_description current_description = test_description_builder::build(m_description.path,
+                                                                                       m_description.duration.short_duration,
+                                                                                       m_description.target_connection.client_ip, m_description.target_connection.server_ip, m_description.target_connection.port, gap_ns, m_description.target_connection.datagram.sizes.at(c_datagramsize_index), m_description.target_connection.datagram.random,
+                                                                                       m_description.interface.client, m_description.interface.server,
+                                                                                       e, c_stress_current, m_description.stress.location);
+                test_results     current_results = perform_scenario(current_description);
 
-        if(get_loss_counter(current_results) > 0) {
-            c_stress_loss_occured = true;
-        }
+                if(get_loss_counter(current_results)) {
+                    c_stress_loss_occured = true;
+                }
 
-        if(c_duration_current == m_description.duration.short_duration) {
-            if(get_loss_counter(current_results) == 0) {
-                // Es trat kein Verlust beim kurzen Test auf.
-                //    -> Fortfahren mit langem Test.
+                gap_ns -= 2500;
+                if(gap_ns == 0) {
+                    gap_ns = 1;
+                }
 
-                c_duration_current = m_description.duration.long_duration;
+                sleep(5);
+            }
+
+            c_datagramsize_index++;
+            if(c_datagramsize_index >= m_description.target_connection.datagram.sizes.size()) {
+                // Es wurden alle Datagramgroessen getestet.
+                //    -> Fortfahren mit niedrigerem Stresslevel.
+
+                c_datagramsize_index = 0;
+
+                if(c_stress_loss_occured) {
+                    c_stress_loss_occured = false;
+                }
+                else {
+                    // Es wurde kein Verlust erkannt, niedrige Stressoren sollen (nach Absprache) dann nicht getestet werden.
+                    //    -> Beenden von Test Control.
+
+                    break;
+                }
+
+                c_stress_current -= c_stress_stepsize;
+                if(c_stress_current < 0) {
+                    // Es wurden alle Stress-Level getestet.
+                    //    -> Beenden von Test Control.
+
+                    break;
+                }
                 continue;
             }
-        }
-        else {
-            c_duration_current = m_description.duration.short_duration;
+
         }
 
-        c_datagramsize_index++;
-        if(c_datagramsize_index >= m_description.target_connection.datagram.sizes.size()) {
-            // Es wurden alle Datagramgroessen getestet.
-            //    -> Fortfahren mit niedrigerem Stresslevel.
 
-            c_datagramsize_index = 0;
-
-            if(c_stress_loss_occured) {
-                c_stress_loss_occured = false;
-            }
-            else {
-                // Es wurde kein Verlust erkannt, niedrige Stressoren sollen (nach Absprache) dann nicht getestet werden.
-                //    -> Beenden von Test Control.
-
-                break;
-            }
-
-            c_stress_current -= c_stress_stepsize;
-            if(c_stress_current < m_description.stress.num.num_min) {
-                // Es wurden alle Stress-Level getestet.
-                //    -> Beenden von Test Control.
-
-                break;
-            }
-            continue;
-        }
     }
 }
 
@@ -87,12 +99,12 @@ test_results test_control_client::perform_scenario(test_description testdescript
         }
     }
 
-    sleep(2);
+    sleep(1);
 
     current_scenario.start();
     current_scenario.stop();
 
-    sleep(4);
+    sleep(3);
 
     if(!m_description.client_only) {
         communication::udp::message_type m_type = communication::udp::TSTOP_MSG;
