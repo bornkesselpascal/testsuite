@@ -291,7 +291,7 @@ void test_control_logger::log_scenario(std::string path, test_description descri
 
     pugi::xml_document doc;
     if(!doc.load_file(filename.c_str())) {
-        throw std::runtime_error("[tc_parser] E01 - Error while loading XML file.");
+        throw std::runtime_error("[tc_parser] E01 - Error while loading XML file (scenario).");
     }
 
     pugi::xml_node root = doc.child("client_log");
@@ -315,6 +315,7 @@ void test_control_logger::log_scenario(std::string path, test_description descri
     }
 
     scenario_node.append_child("duration").text() = std::to_string(description.duration).c_str();
+    scenario_node.append_child("datagram_size").text() = std::to_string(description.connection.custom.datagram.size).c_str();
 
     pugi::xml_node stress_node = scenario_node.append_child("stress");
     switch(description.stress.type) {

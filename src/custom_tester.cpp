@@ -72,7 +72,7 @@ void custom_tester_client::run(struct test_results::custom* results) {
     }
 
     free(data);
-    sleep(6);
+    sleep(4);
 
     communication::udp::message_type end_message = communication::udp::CSTOP_MSG;
     int bytes_send = m_comm_client.send(&end_message, sizeof(end_message));
@@ -93,6 +93,9 @@ void custom_tester_client::run(struct test_results::custom* results) {
     results->num_total = msg_counter;
     results->num_loss  = (msg_counter - server_results.number_received);
     results->num_misses = tmr_misses;
+
+    close(m_comm_server.get_socket());
+    close(m_comm_client.get_socket());
 }
 
 
@@ -136,4 +139,7 @@ void custom_tester_server::run(struct test_results::custom* results) {
     if(bytes_send == -1) {
         std::cerr << "[custom_tester] Error when sending result message." << std::endl;
     }
+
+    close(m_comm_server.get_socket());
+    close(m_comm_client.get_socket());
 }

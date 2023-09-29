@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <fstream>
 #include "test_control_client.h"
+#include "test_control_server.h"
 
 void stress_example();
 
@@ -20,6 +21,11 @@ int main() {
     }
 
     return 0;
+
+//std::string filename = "/home/aidass/Developer/TestSuite/server_description.xml";
+//server_description mdesc = test_control_parser::read_server_from_XML(filename);
+//test_control_server mserv(mdesc);
+//mserv.run();
 
 
 //    custom_tester_client client_test({"10.30.0.1", "10.30.0.2", 8100, 100000, {65500, false}, 30});

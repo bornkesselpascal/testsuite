@@ -25,7 +25,7 @@ communication::udp::client::client(const std::string& address, int port)
     m_socket = socket(m_addrinfo->ai_family, SOCK_DGRAM | SOCK_CLOEXEC, IPPROTO_UDP);
     if(m_socket == -1) {
         freeaddrinfo(m_addrinfo);
-        throw std::runtime_error("[comm_udp_c] E02 - Could not create socket for " + m_address + ":" + std::to_string(m_socket) + ".");
+        throw std::runtime_error("[comm_udp_c] E02 - Could not create socket for " + m_address + ":" + std::to_string(m_port) + ".");
     }
 }
 
@@ -63,7 +63,7 @@ communication::udp::server::server(const std::string& address, int port)
     if(m_socket == -1)
     {
         freeaddrinfo(m_addrinfo);
-        throw std::runtime_error("[comm_udp_s] E02 - Could not create socket for " + m_address + ":" + std::to_string(m_socket) + ".");
+        throw std::runtime_error("[comm_udp_s] E02 - Could not create socket for " + m_address + ":" + std::to_string(m_port) + ".");
     }
 
     int sock_size = 102428800;
