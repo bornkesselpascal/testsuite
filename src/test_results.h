@@ -27,6 +27,7 @@ struct test_results {
         long long int num_loss = -1;
         long long int num_total = -1;
         long long int num_misses = -1;
+        long double   elapsed_time = -1;
     } custom;
 
     ethtool_statistic ethtool_statistic_start;

@@ -390,6 +390,7 @@ void test_control_logger::log_scenario(std::string path, test_description descri
             results_node.append_child("num_loss").text() = std::to_string(results->custom.num_loss).c_str();
             results_node.append_child("num_total").text() = std::to_string(results->custom.num_total).c_str();
             results_node.append_child("num_misses").text() = std::to_string(results->custom.num_misses).c_str();
+            results_node.append_child("elapsed_time").text() = std::to_string(results->custom.elapsed_time).c_str();
             break;
         }
         }

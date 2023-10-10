@@ -15,6 +15,7 @@ enum message_type {
     CDATA_MSG,
     CSTOP_MSG,
     CRESU_MSG,
+    CQURY_MSG,
 };
 
 class client {
