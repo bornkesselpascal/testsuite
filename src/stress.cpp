@@ -23,7 +23,7 @@ stress::stress(test_description description, bool start_recording)
         }
     }
 
-    if(description.stress.num > 0 && description.stress.type != stress_type::NETWORK) {
+    if(description.stress.num > 0) {
         pid_t pid_stress = fork();
 
         if(-1 == pid_stress) {
@@ -64,20 +64,6 @@ stress::stress(test_description description, bool start_recording)
             return;
         }
     }
-    else if(description.stress.type == stress_type::NETWORK) {
-//        pid_t pid_stress = fork();
-
-//        if(-1 == pid_stress) {
-//            throw std::runtime_error("[stress] Could not fork.");
-//        }
-//        else if(0 == pid_stress) {
-//            pid_t current_pid = getpid();
-//            system(("chrt -o -p 0 " + std::to_string(current_pid)).c_str());
-
-//            stressor_network = std::unique_ptr<custom_stressor_network>(new custom_stressor_network("/testsuite/custom_stressor/network.xml", (description.duration+2), description.stress.num, description.stress.location));
-//            stressor_network->start();
-//        }
-    }
 }
 
 stress::~stress() {
@@ -88,9 +74,4 @@ void stress::stop()
 {
     system("killall stress-ng");
     system("killall nmon");
-
-    if(stressor_network != nullptr) {
-        stressor_network->stop();
-        stressor_network.release();
-    }
 }

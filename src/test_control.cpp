@@ -76,9 +76,6 @@ client_description test_control_parser::read_client_from_XML(std::string filenam
     else if(stress_type == "TIMER") {
         description.stress.type = test_description::stress::TIMER;
     }
-    else if(stress_type == "NETWORK") {
-        description.stress.type = test_description::stress::NETWORK;
-    }
     pugi::xml_node num_node = stress_node.child("num");
     description.stress.num.num_min = std::stoi(num_node.child_value("num_min"));
     description.stress.num.num_max = std::stoi(num_node.child_value("num_max"));
@@ -164,10 +161,6 @@ void test_control_parser::write_client_to_XML(std::string filename, client_descr
     }
     case test_description::stress::TIMER: {
         stress_node.append_child("type").text() = "TIMER";
-        break;
-    }
-    case test_description::stress::NETWORK: {
-        stress_node.append_child("type").text() = "NETWORK";
         break;
     }
     }
@@ -341,10 +334,6 @@ void test_control_logger::log_scenario(std::string path, test_description descri
     }
     case test_description::stress::TIMER: {
         stress_node.append_child("type").text() = "TIMER";
-        break;
-    }
-    case test_description::stress::NETWORK: {
-        stress_node.append_child("type").text() = "NETWORK";
         break;
     }
     }

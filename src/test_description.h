@@ -52,7 +52,6 @@ struct test_description {
             MEMORY,
             IO,
             TIMER,
-            NETWORK,
         } type;
         int num;
         enum location {
