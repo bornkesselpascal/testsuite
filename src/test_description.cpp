@@ -187,22 +187,25 @@ static test_description read_from_XML(std::string filename) {
     pugi::xml_node stress_node = root.child("stress");
     std::string stress_type = stress_node.child_value("type");
     if(stress_type == "CPU_USR") {
-        description.stress.type = test_description::stress::CPU_USR;
+        description.stress.type = stress_type::CPU_USR;
     }
     else if(stress_type == "CPU_KERNEL") {
-        description.stress.type = test_description::stress::CPU_KERNEL;
+        description.stress.type = stress_type::CPU_KERNEL;
     }
     else if(stress_type == "CPU_REALTIME") {
-        description.stress.type = test_description::stress::CPU_REALTIME;
+        description.stress.type = stress_type::CPU_REALTIME;
     }
     else if(stress_type == "MEMORY") {
-        description.stress.type = test_description::stress::MEMORY;
+        description.stress.type = stress_type::MEMORY;
     }
     else if(stress_type == "IO") {
-        description.stress.type = test_description::stress::IO;
+        description.stress.type = stress_type::IO;
     }
     else if(stress_type == "TIMER") {
-        description.stress.type = test_description::stress::TIMER;
+        description.stress.type = stress_type::TIMER;
+    }
+    else if(stress_type == "NONE") {
+        description.stress.type = stress_type::NONE;
     }
     description.stress.num = std::stoi(stress_node.child_value("num"));
     std::string stress_location = stress_node.child_value("location");
@@ -271,28 +274,32 @@ void test_description_parser::write_to_XML(std::string filename, test_descriptio
 
     pugi::xml_node stress_node = root.append_child("stress");
     switch(description.stress.type) {
-    case test_description::stress::CPU_USR: {
+    case stress_type::CPU_USR: {
         stress_node.append_child("type").text() = "CPU_USR";
         break;
     }
-    case test_description::stress::CPU_KERNEL: {
+    case stress_type::CPU_KERNEL: {
         stress_node.append_child("type").text() = "CPU_KERNEL";
         break;
     }
-    case test_description::stress::CPU_REALTIME: {
+    case stress_type::CPU_REALTIME: {
         stress_node.append_child("type").text() = "CPU_REALTIME";
         break;
     }
-    case test_description::stress::MEMORY: {
+    case stress_type::MEMORY: {
         stress_node.append_child("type").text() = "MEMORY";
         break;
     }
-    case test_description::stress::IO: {
+    case stress_type::IO: {
         stress_node.append_child("type").text() = "IO";
         break;
     }
-    case test_description::stress::TIMER: {
+    case stress_type::TIMER: {
         stress_node.append_child("type").text() = "TIMER";
+        break;
+    }
+    case stress_type::NONE: {
+        stress_node.append_child("type").text() = "NONE";
         break;
     }
     }

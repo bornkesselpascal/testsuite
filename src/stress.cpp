@@ -23,7 +23,7 @@ stress::stress(test_description description, bool start_recording)
         }
     }
 
-    if(description.stress.num > 0) {
+    if(description.stress.num > 0 || description.stress.type != stress_type::NONE) {
         pid_t pid_stress = fork();
 
         if(-1 == pid_stress) {
@@ -37,24 +37,26 @@ stress::stress(test_description description, bool start_recording)
             int duration = (description.duration == -1) ? 68400 : (description.duration+5);
 
             switch(description.stress.type) {
-            case test_description::stress::type::CPU_USR:
+            case stress_type::CPU_USR:
                 ret = execlp("/usr/bin/stress-ng", "/usr/bin/stress-ng", "--cpu", std::to_string(description.stress.num).c_str(), "-t", std::to_string(duration).c_str(), nullptr);
                 break;
-            case test_description::stress::type::CPU_KERNEL:
+            case stress_type::CPU_KERNEL:
                 ret = execlp("/usr/bin/stress-ng", "/usr/bin/stress-ng", "--get", std::to_string(description.stress.num).c_str(), "-t", std::to_string(duration).c_str(), nullptr);
                 break;
-            case test_description::stress::type::CPU_REALTIME:
+            case stress_type::CPU_REALTIME:
                 ret = execlp("/usr/bin/stress-ng", "/usr/bin/stress-ng", "--cpu", std::to_string(description.stress.num).c_str(), "-t", std::to_string(duration).c_str(), "--sched", "fifo", "--sched-prio", "50", nullptr);
                 break;
-            case test_description::stress::type::MEMORY:
+            case stress_type::MEMORY:
                 ret = execlp("/usr/bin/stress-ng", "/usr/bin/stress-ng", "--bigheap", std::to_string(description.stress.num).c_str(), "-t", std::to_string(duration).c_str(), nullptr);
                 break;
-            case test_description::stress::type::IO:
+            case stress_type::IO:
                 ret = execlp("/usr/bin/stress-ng", "/usr/bin/stress-ng", "--hdd", std::to_string(description.stress.num).c_str(), "-t", std::to_string(duration).c_str(), nullptr);
                 break;
-            case test_description::stress::type::TIMER:
+            case stress_type::TIMER:
                 ret = execlp("/usr/bin/stress-ng", "/usr/bin/stress-ng", "--timer", std::to_string(description.stress.num).c_str(), "-t", std::to_string(duration).c_str(), nullptr);
                 break;
+            default:
+                return;
             }
 
             if(-1 == ret) {
