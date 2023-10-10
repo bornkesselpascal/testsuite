@@ -45,7 +45,7 @@ public:
     int         get_port()    const { return m_port;    };
     std::string get_address() const { return m_address; };
 
-    int receive(void *msg, size_t max_size);
+    int receive(void *msg, size_t max_size, bool timeout = false);
 
 private:
     int m_socket;

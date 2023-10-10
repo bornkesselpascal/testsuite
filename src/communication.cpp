@@ -1,6 +1,7 @@
 #include "communication.h"
 #include <string.h>
 #include <unistd.h>
+#include <poll.h>
 #include <stdexcept>
 
 communication::udp::client::client(const std::string& address, int port)
@@ -106,6 +107,26 @@ communication::udp::server::~server() {
  * @param max_size The size of the message buffer in bytes.
  * @return         Number of bytes read, -1 if an error occurs.
  */
-int communication::udp::server::receive(void *msg, size_t max_size) {
-    return ::recv(m_socket, msg, max_size, 0);
+int communication::udp::server::receive(void *msg, size_t max_size, bool timeout) {
+    if(timeout) {
+        struct pollfd fd;
+        int res;
+
+        fd.fd = m_socket;
+        fd.events = POLLIN;
+        res = ::poll(&fd, 1, 1000);
+
+        if(0 == res || -1 == res) {
+            return -1; // timeout
+        }
+        else if(-1 == res) {
+            return -2; // error
+        }
+        else {
+            return ::recv(m_socket, msg, max_size, 0);
+        }
+    }
+    else {
+        return ::recv(m_socket, msg, max_size, 0);
+    }
 }
