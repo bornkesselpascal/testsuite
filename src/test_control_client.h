@@ -14,6 +14,7 @@ public:
 private:
     test_results perform_scenario(test_description testdescription);
     long long int get_loss_counter(test_results &results);
+    void print_current_test_to_console(test_description testdescription, int datagramsize_index, int duration, int stress);
 
     client_description m_description;
     communication::udp::client m_comm_client;

@@ -80,9 +80,11 @@ client_description test_control_parser::read_client_from_XML(std::string filenam
         description.stress.type = stress_type::NONE;
     }
     pugi::xml_node num_node = stress_node.child("num");
-    description.stress.num.num_min = std::stoi(num_node.child_value("num_min"));
-    description.stress.num.num_max = std::stoi(num_node.child_value("num_max"));
-    description.stress.num.steps = std::stoi(num_node.child_value("steps"));
+    if(num_node) {
+        description.stress.num.num_min = std::stoi(num_node.child_value("num_min"));
+        description.stress.num.num_max = std::stoi(num_node.child_value("num_max"));
+        description.stress.num.steps = std::stoi(num_node.child_value("steps"));
+    }
     std::string stress_location = stress_node.child_value("location");
     if(stress_location == "LOC_CLIENT") {
         description.stress.location = test_description::stress::LOC_CLIENT;

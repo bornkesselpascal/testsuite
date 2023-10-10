@@ -5,6 +5,9 @@
 #include <ctime>
 #include <unistd.h>
 
+const int gap_stepsize = 10000;
+
+
 test_control_client::test_control_client(client_description description)
     : m_description(description)
     , m_comm_client(m_description.service_connection.server_ip, m_description.service_connection.port)
@@ -23,47 +26,59 @@ test_control_client::test_control_client(client_description description)
 }
 
 void test_control_client::run() {
-    if(m_description.stress.num.steps < 2) {
-        std::cerr << "[tc_client] E01 - You need at least 2 stress steps." << std::endl;
-        return;
-    }
-    double c_stress_current  = m_description.stress.num.num_max;                                                                                                    // start with the highest level
-    double c_stress_stepsize = ((double) (m_description.stress.num.num_max - m_description.stress.num.num_min)) / ((double) (m_description.stress.num.steps - 1));  // calculate stepsize
-    bool   c_stress_loss_occured = false;
 
-    int c_duration_current = m_description.duration.short_duration;
-    int c_datagramsize_index = 0;
+    double ctl_stress_current, ctl_stress_stepsize = 0;
+    bool   ctl_stress_loss = false;
+    if(stress_type::NONE != m_description.stress.type) {
+        ctl_stress_current  = m_description.stress.num.num_max;
+        ctl_stress_stepsize = ((double) (m_description.stress.num.num_max - m_description.stress.num.num_min)) / ((double) (m_description.stress.num.steps - 1));
+    }
+
+    int ctl_duration = m_description.duration.short_duration;
+    int ctl_datagramsize_index = 0;
+
+    /// MODIFIKATIONEN FUER REALSTRESS-TESTS
+    bool ctl_gap_init = false;
+    /// MODIFIKATIONEN ENDE
 
     while(true) {
-        test_description current_description = test_description_builder::simple_build(m_description, c_duration_current, m_description.target_connection.datagram.sizes.at(c_datagramsize_index), c_stress_current);
-        test_results     current_results = perform_scenario(current_description);
+        test_description current_description = test_description_builder::simple_build(m_description,
+                                                                                      ctl_duration,
+                                                                                      m_description.target_connection.datagram.sizes.at(ctl_datagramsize_index),
+                                                                                      ctl_stress_loss);
+        print_current_test_to_console(current_description, ctl_datagramsize_index, ctl_duration, ctl_stress_current);
+        test_results current_results = perform_scenario(current_description);
 
         if(get_loss_counter(current_results) > 0) {
-            c_stress_loss_occured = true;
+            ctl_stress_loss = true;
         }
 
-        if(c_duration_current == m_description.duration.short_duration) {
-            if(get_loss_counter(current_results) == 0) {
-                // Es trat kein Verlust beim kurzen Test auf.
-                //    -> Fortfahren mit langem Test.
-
-                c_duration_current = m_description.duration.long_duration;
-                continue;
-            }
+        /// MODIFIKATIONEN FUER REALSTRESS-TESTS
+        if(ctl_gap_init) {
+            m_description.target_connection.gap += gap_stepsize;
+            continue;
         }
         else {
-            c_duration_current = m_description.duration.short_duration;
+            if(m_description.target_connection.datagram.sizes.at(ctl_datagramsize_index) < 9000) {
+                m_description.target_connection.gap = 10000;
+            }
+            else {
+                m_description.target_connection.gap = 60000;
+            }
+            ctl_gap_init = true;
+            continue;
         }
+        /// MODIFIKATIONEN ENDE
 
-        c_datagramsize_index++;
-        if(c_datagramsize_index >= m_description.target_connection.datagram.sizes.size()) {
+        ctl_datagramsize_index++;
+        if(ctl_datagramsize_index >= m_description.target_connection.datagram.sizes.size()) {
             // Es wurden alle Datagramgroessen getestet.
-            //    -> Fortfahren mit niedrigerem Stresslevel.
+            //    -> Fortfahren mit niedrigerem Stresslevel oder beenden.
 
-            c_datagramsize_index = 0;
+            ctl_datagramsize_index = 0;
 
-            if(c_stress_loss_occured) {
-                c_stress_loss_occured = false;
+            if(ctl_stress_loss) {
+                ctl_stress_loss = false;
             }
             else {
                 // Es wurde kein Verlust erkannt, niedrige Stressoren sollen (nach Absprache) dann nicht getestet werden.
@@ -72,9 +87,9 @@ void test_control_client::run() {
                 break;
             }
 
-            c_stress_current -= c_stress_stepsize;
-            if(c_stress_current < m_description.stress.num.num_min) {
-                // Es wurden alle Stress-Level getestet.
+            ctl_stress_current -= ctl_stress_stepsize;
+            if(ctl_stress_current < m_description.stress.num.num_min || stress_type::NONE == m_description.stress.type) {
+                // Es wurden alle Stress-Level getestet oder wir testen mit NONE.
                 //    -> Beenden von Test Control.
 
                 break;
@@ -129,4 +144,16 @@ long long int test_control_client::get_loss_counter(test_results &results) {
     }
 
     return -1;
+}
+
+void test_control_client::print_current_test_to_console(test_description testdescription, int datagramsize_index, int duration, int stress) {
+    std::cout << "* [TC_CLIENT] NEXT TEST" << std::endl;
+    std::cout << "* - T_UID       : " << testdescription.metadata.t_uid << std::endl;
+    std::cout << "* - GAP         : " << testdescription.connection.custom.gap << std::endl;
+    std::cout << "* - DATAGR-SIZE : " << m_description.target_connection.datagram.sizes.at(datagramsize_index) << std::endl;
+    std::cout << "* - MAX DURATION: " << duration << std::endl;
+
+    if(stress_type::NONE != m_description.stress.type) {
+        std::cout << "* - STRESS INT. : " << stress << std::endl;
+    }
 }
