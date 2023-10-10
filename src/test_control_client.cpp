@@ -1,12 +1,23 @@
 #include "test_control_client.h"
 #include "test_scenario.h"
+#include <iomanip>
 #include <iostream>
+#include <ctime>
 #include <unistd.h>
 
 test_control_client::test_control_client(client_description description)
     : m_description(description)
     , m_comm_client(m_description.service_connection.server_ip, m_description.service_connection.port)
 {
+    std::time_t current_time = std::time(nullptr);
+    std::tm* time_info = std::localtime(&current_time);
+
+    std::ostringstream formatted_time;
+    formatted_time << std::setfill('0');
+    formatted_time << std::setw(2) << time_info->tm_hour << std::setw(2) << time_info->tm_min << std::setw(2) << time_info->tm_sec << '_'
+                   << std::setw(2) << time_info->tm_mday << std::setw(2) << (time_info->tm_mon + 1) << std::setw(2) << (time_info->tm_year % 100);
+    m_description.path += "_" + formatted_time.str();
+
     system(("mkdir -p " + std::string(m_description.path)).c_str());
     test_control_logger::log_control(m_description);
 }
