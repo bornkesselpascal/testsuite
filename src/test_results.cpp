@@ -38,6 +38,7 @@ void test_results_parser::write_to_XML(std::string filename, test_results &resul
         custom_node.append_child("num_loss").text() = std::to_string(results.custom.num_loss).c_str();
         custom_node.append_child("num_total").text() = std::to_string(results.custom.num_total).c_str();
         custom_node.append_child("num_misses").text() = std::to_string(results.custom.num_misses).c_str();
+        custom_node.append_child("elapsed_time").text() = std::to_string(results.custom.elapsed_time).c_str();
         break;
     }
     }
