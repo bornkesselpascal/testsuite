@@ -49,6 +49,9 @@ void test_control_client::run() {
         print_current_test_to_console(current_description, ctl_datagramsize_index, ctl_duration, ctl_stress_current);
         test_results current_results = perform_scenario(current_description);
 
+        std::cout << "Szenario beendet." << std::endl;
+        sleep(1);
+
         if(get_loss_counter(current_results) > 0) {
             ctl_stress_loss = true;
         }
@@ -56,7 +59,6 @@ void test_control_client::run() {
         /// MODIFIKATIONEN FUER REALSTRESS-TESTS
         if(ctl_gap_init) {
             m_description.target_connection.gap += gap_stepsize;
-            continue;
         }
         else {
             if(m_description.target_connection.datagram.sizes.at(ctl_datagramsize_index) < 9000) {
@@ -66,7 +68,17 @@ void test_control_client::run() {
                 m_description.target_connection.gap = 60000;
             }
             ctl_gap_init = true;
+        }
+
+        if(ctl_stress_loss) {
+            ctl_stress_loss = false;
             continue;
+        }
+        else {
+            m_description.target_connection.gap = 2500;
+
+            // Kein Verlust aufgetreten.
+            //    -> Fortfahren mit weiterer Datagrammgroesse.
         }
         /// MODIFIKATIONEN ENDE
 

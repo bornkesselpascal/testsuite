@@ -80,6 +80,7 @@ void custom_tester_client::run(struct test_results::custom* results) {
                 int bytes_received = m_comm_server.receive(&query_results, sizeof(query_results), true);
                 if(bytes_received == sizeof(query_results)) {
                     query_diff = msg_counter - query_results.number_received;
+                    msg_counter++;
                     if(query_diff > loss_limit) {
                         std::cout << "[ERROR] Loss limit reached. Aborting test scenario." << query_diff << std::endl;
                         break;
@@ -89,8 +90,6 @@ void custom_tester_client::run(struct test_results::custom* results) {
                     std::cerr << "[custom_tester] Error when recieving query message." << std::endl;
                     break;
                 }
-
-                msg_counter++;
             }
 
             tmr_misses += gap_timer.wait();

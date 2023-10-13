@@ -23,7 +23,7 @@ stress::stress(test_description description, bool start_recording)
         }
     }
 
-    if(description.stress.num > 0 || description.stress.type != stress_type::NONE) {
+    if(description.stress.num > 0 && description.stress.type != stress_type::NONE) {
         pid_t pid_stress = fork();
 
         if(-1 == pid_stress) {
