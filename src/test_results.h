@@ -2,8 +2,14 @@
 #define TEST_RESULTS_H
 
 #include <string>
+#include <vector>
 #include "metrics.h"
 #include "test_description.h"
+
+struct query_report {
+    long long int cur_packages;
+    long long int cur_misses;
+};
 
 struct test_results {
     enum status {
@@ -28,6 +34,7 @@ struct test_results {
         long long int num_total = -1;
         long long int num_misses = -1;
         long double   elapsed_time = -1;
+        std::vector<query_report> query_response;
     } custom;
 
     ethtool_statistic ethtool_statistic_start;

@@ -39,6 +39,14 @@ void test_results_parser::write_to_XML(std::string filename, test_results &resul
         custom_node.append_child("num_total").text() = std::to_string(results.custom.num_total).c_str();
         custom_node.append_child("num_misses").text() = std::to_string(results.custom.num_misses).c_str();
         custom_node.append_child("elapsed_time").text() = std::to_string(results.custom.elapsed_time).c_str();
+
+        pugi::xml_node query_node = custom_node.append_child("query");
+        for(query_report &report : results.custom.query_response) {
+            pugi::xml_node report_node = query_node.append_child("report");
+            report_node.append_child("misses").text() = std::to_string(report.cur_misses).c_str();
+            report_node.append_child("total").text() = std::to_string(report.cur_packages).c_str();
+        }
+
         break;
     }
     }

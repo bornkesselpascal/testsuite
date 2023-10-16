@@ -15,7 +15,7 @@ const long long int loss_limit = 50;
 
 custom_tester_client::custom_tester_client(custom_tester_client_description description)
     : m_description(description)
-    , m_comm_client(m_description.server_ip, m_description.port)
+    , m_comm_client(m_description.server_ip, m_description.port, false)
     , m_comm_server(m_description.client_ip, (m_description.port + 1))
 {
 }
@@ -80,7 +80,9 @@ void custom_tester_client::run(struct test_results::custom* results) {
                 int bytes_received = m_comm_server.receive(&query_results, sizeof(query_results), true);
                 if(bytes_received == sizeof(query_results)) {
                     query_diff = msg_counter - query_results.number_received;
+                    results->query_response.push_back({query_diff, msg_counter});
                     msg_counter++;
+
                     if(query_diff > loss_limit) {
                         std::cout << "[ERROR] Loss limit reached. Aborting test scenario." << query_diff << std::endl;
                         break;
@@ -144,7 +146,7 @@ void custom_tester_client::run(struct test_results::custom* results) {
 custom_tester_server::custom_tester_server(custom_tester_server_description description)
     : m_description(description)
     , m_comm_server(m_description.server_ip, m_description.port)
-    , m_comm_client(m_description.client_ip, (m_description.port + 1))
+    , m_comm_client(m_description.client_ip, (m_description.port + 1), false)
 {
 }
 
