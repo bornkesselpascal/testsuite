@@ -4,7 +4,7 @@
 #include <poll.h>
 #include <stdexcept>
 
-communication::udp::client::client(const std::string& address, int port)
+communication::udp::client::client(const std::string& address, int port, bool high_priority)
     : m_address(address)
     , m_port(port)
 {
@@ -27,6 +27,13 @@ communication::udp::client::client(const std::string& address, int port)
     if(m_socket == -1) {
         freeaddrinfo(m_addrinfo);
         throw std::runtime_error("[comm_udp_c] E02 - Could not create socket for " + m_address + ":" + std::to_string(m_port) + ".");
+    }
+
+    if(high_priority) {
+        int dscp_value = 63 << 2; // highest priority
+        if(setsockopt(m_socket, IPPROTO_IP, IP_TOS, &dscp_value, sizeof(dscp_value)) < 0) {
+            throw std::runtime_error("[comm_udp_c] E03 - Could not set DSCP for " + m_address + ":" + std::to_string(m_port) + ".");
+        }
     }
 }
 

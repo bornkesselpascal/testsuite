@@ -20,7 +20,7 @@ enum message_type {
 
 class client {
 public:
-    client(const std::string& address, int port);
+    client(const std::string& address, int port, bool high_priority = false);
     ~client();
 
     int         get_socket()  const { return m_socket;  };
