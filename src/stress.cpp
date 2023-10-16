@@ -4,6 +4,7 @@
 #include <signal.h>
 
 stress::stress(test_description description, bool start_recording)
+    : m_type(description.stress.type)
 {
     if (start_recording) {
         pid_t pid_nmon = fork();
@@ -74,6 +75,8 @@ stress::~stress() {
 
 void stress::stop()
 {
-    system("killall stress-ng");
+    if(m_type != stress_type::NONE) {
+        system("killall stress-ng");
+    }
     system("killall nmon");
 }

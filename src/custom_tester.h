@@ -4,6 +4,7 @@
 #include "communication.h"
 #include "test_results.h"
 #include <string>
+#include <unistd.h>
 
 struct custom_tester_client_description {
     std::string client_ip;
@@ -49,7 +50,6 @@ private:
     communication::udp::client m_comm_client;
     communication::udp::server m_comm_server;
 };
-
 
 struct custom_tester_result_message {
     const enum communication::udp::message_type type = communication::udp::CRESU_MSG;

@@ -76,6 +76,7 @@ void test_control_client::run() {
         }
         else {
             m_description.target_connection.gap = 2500;
+            ctl_gap_init = false;
 
             // Kein Verlust aufgetreten.
             //    -> Fortfahren mit weiterer Datagrammgroesse.

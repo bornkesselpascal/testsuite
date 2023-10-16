@@ -13,6 +13,8 @@ public:
     ~stress();
     void stop();
 
+private:
+    stress_type m_type;
 };
 
 #endif // STRESS_H
