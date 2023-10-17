@@ -15,7 +15,7 @@ const long long int loss_limit = 50;
 
 custom_tester_client::custom_tester_client(custom_tester_client_description description)
     : m_description(description)
-    , m_comm_client(m_description.server_ip, m_description.port, false)
+    , m_comm_client(m_description.server_ip, m_description.port, m_description.qos)
     , m_comm_server(m_description.client_ip, (m_description.port + 1))
 {
 }
@@ -146,7 +146,7 @@ void custom_tester_client::run(struct test_results::custom* results) {
 custom_tester_server::custom_tester_server(custom_tester_server_description description)
     : m_description(description)
     , m_comm_server(m_description.server_ip, m_description.port)
-    , m_comm_client(m_description.client_ip, (m_description.port + 1), false)
+    , m_comm_client(m_description.client_ip, (m_description.port + 1), m_description.qos)
 {
 }
 

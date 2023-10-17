@@ -30,6 +30,7 @@ struct client_description {
             std::vector<int> sizes;
             bool random;
         } datagram;
+        bool qos = false;
     } target_connection;
 
     struct interface {

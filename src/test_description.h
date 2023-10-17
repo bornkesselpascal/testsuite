@@ -36,6 +36,7 @@ struct test_description {
                 int  size;              // Datagramgroesse
                 bool random;            // Zufaellige Datagramgroesse (im Bereich 0 bis size)
             } datagram;
+            bool qos = false;
         } custom;
     } connection;
 

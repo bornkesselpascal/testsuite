@@ -16,6 +16,7 @@ struct custom_tester_client_description {
         bool random;                // Zufaellige Datagramgroesse (im Bereich 0 bis size)
     } datagram;
     int duration;                   // Duration of the test [s]
+    bool qos;
 };
 
 struct custom_tester_server_description {
@@ -25,6 +26,7 @@ struct custom_tester_server_description {
     struct datagram {
         int  size;                  // Datagramgroesse
     } datagram;
+    bool qos;
 };
 
 class custom_tester_client

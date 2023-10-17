@@ -53,6 +53,7 @@ iperf_client::iperf_client(test_description description, bool udp) {
         m_custom_description.datagram.size = m_description.connection.custom.datagram.size;
         m_custom_description.datagram.random = m_description.connection.custom.datagram.random;
         m_custom_description.duration = m_description.duration;
+        m_custom_description.qos = m_description.connection.custom.qos;
         break;
     }
     }
@@ -193,6 +194,7 @@ void iperf_server::load_test(test_description description) {
         m_custom_description.server_ip = m_description.connection.custom.server_ip;
         m_custom_description.port      = m_description.connection.custom.port;
         m_custom_description.datagram.size = m_description.connection.custom.datagram.size;
+        m_custom_description.qos       = m_description.connection.custom.qos;
 
         m_thread_ptr = std::unique_ptr<std::thread>(new std::thread(custom_tester_thread_server, m_custom_description, &(m_results.custom)));
         break;
