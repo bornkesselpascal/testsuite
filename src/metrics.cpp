@@ -68,6 +68,42 @@ ip_statistic metrics::get_ip_statistic(std::string interface_name) {
     return result;
 }
 
+netstat_statistic metrics::get_netstat_statistic() {
+    std::string output = metrics::execute_command("netstat -suna");
+    netstat_statistic result;
+
+    std::istringstream iss(output);
+    std::string line;
+    bool in_udp_section = false;
+
+    while (std::getline(iss, line)) {
+        if (line.find("Udp:") != std::string::npos) {
+            in_udp_section = true;
+        } else if (line.find("UdpLite:") != std::string::npos) {
+            in_udp_section = false;
+        } else if (in_udp_section) {
+            std::smatch match;
+            if (std::regex_search(line, match, std::regex(R"(\d+)"))) {
+                std::string test = match[0].str();
+                long long value = std::stoll(match[0].str());
+                if (line.find("packets received") != std::string::npos) {
+                    result.udp_pkg_rec = value;
+                } else if (line.find("packet receive errors") != std::string::npos) {
+                    result.udp_rec_err = value;
+                } else if (line.find("packets sent") != std::string::npos) {
+                    result.udp_pkg_snt = value;
+                } else if (line.find("receive buffer errors") != std::string::npos) {
+                    result.udp_rec_buf_err = value;
+                } else if (line.find("send buffer errors") != std::string::npos) {
+                    result.udp_snt_buf_err = value;
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
 std::string metrics::execute_command (std::string command)
 {
     std::array<char, 128> buffer;

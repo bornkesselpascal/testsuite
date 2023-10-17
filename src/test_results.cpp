@@ -118,6 +118,22 @@ void test_results_parser::write_to_XML(std::string filename, test_results &resul
     ip_tx_collisions_node.append_child("start").text() = std::to_string(results.ip_statistic_start.tx_collisions).c_str();
     ip_tx_collisions_node.append_child("end").text() = std::to_string(results.ip_statistic_end.tx_collisions).c_str();
 
+    pugi::xml_node netstat_node = root.append_child("netstat_statistic");
+    pugi::xml_node netstat_udp_pkg_rec_node = netstat_node.append_child("udp_pkg_rec");
+    netstat_udp_pkg_rec_node.append_child("start").text() = std::to_string(results.netstat_statistic_start.udp_pkg_rec).c_str();
+    netstat_udp_pkg_rec_node.append_child("end").text() = std::to_string(results.netstat_statistic_end.udp_pkg_rec).c_str();
+    pugi::xml_node netstat_udp_pkg_snt_node = netstat_node.append_child("udp_pkg_snt");
+    netstat_udp_pkg_snt_node.append_child("start").text() = std::to_string(results.netstat_statistic_start.udp_pkg_snt).c_str();
+    netstat_udp_pkg_snt_node.append_child("end").text() = std::to_string(results.netstat_statistic_end.udp_pkg_snt).c_str();
+    pugi::xml_node netstat_udp_rec_err_node = netstat_node.append_child("udp_rec_err");
+    netstat_udp_rec_err_node.append_child("start").text() = std::to_string(results.netstat_statistic_start.udp_rec_err).c_str();
+    netstat_udp_rec_err_node.append_child("end").text() = std::to_string(results.netstat_statistic_end.udp_rec_err).c_str();
+    pugi::xml_node netstat_udp_rec_buf_err_node = netstat_node.append_child("udp_rec_buf_err");
+    netstat_udp_rec_buf_err_node.append_child("start").text() = std::to_string(results.netstat_statistic_start.udp_rec_buf_err).c_str();
+    netstat_udp_rec_buf_err_node.append_child("end").text() = std::to_string(results.netstat_statistic_end.udp_rec_buf_err).c_str();
+    pugi::xml_node netstat_udp_snt_buf_err_node = netstat_node.append_child("udp_snt_buf_err");
+    netstat_udp_snt_buf_err_node.append_child("start").text() = std::to_string(results.netstat_statistic_start.udp_snt_buf_err).c_str();
+    netstat_udp_snt_buf_err_node.append_child("end").text() = std::to_string(results.netstat_statistic_end.udp_snt_buf_err).c_str();
 
     if(!doc.save_file(filename.c_str())) {
         throw std::runtime_error("[tr_parser] E02 - Error while saving XML file.");

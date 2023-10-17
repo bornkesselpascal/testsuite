@@ -42,6 +42,9 @@ struct test_results {
 
     ip_statistic ip_statistic_start;
     ip_statistic ip_statistic_end;
+
+    netstat_statistic netstat_statistic_start;
+    netstat_statistic netstat_statistic_end;
 };
 
 

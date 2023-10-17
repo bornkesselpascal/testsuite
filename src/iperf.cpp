@@ -61,6 +61,7 @@ iperf_client::iperf_client(test_description description, bool udp) {
 void iperf_client::start() {
     m_results.ethtool_statistic_start = metrics::get_ethtool_statistic(m_description.interface.client);
     m_results.ip_statistic_start      = metrics::get_ip_statistic(m_description.interface.client);
+    m_results.netstat_statistic_start = metrics::get_netstat_statistic();
 
     switch (m_description.metadata.method) {
     case test_description::metadata::IPERF:
@@ -80,6 +81,7 @@ test_results iperf_client::get_results() {
 
     m_results.ethtool_statistic_end = metrics::get_ethtool_statistic(m_description.interface.client);
     m_results.ip_statistic_end      = metrics::get_ip_statistic(m_description.interface.client);
+    m_results.netstat_statistic_end = metrics::get_netstat_statistic();
 
     switch (m_description.metadata.method) {
     case test_description::metadata::IPERF:
@@ -173,8 +175,9 @@ void iperf_server::start() {
 void iperf_server::load_test(test_description description) {
     m_description = description;
 
-    m_results.ethtool_statistic_start = metrics::get_ethtool_statistic(m_description.interface.client);
-    m_results.ip_statistic_start      = metrics::get_ip_statistic(m_description.interface.client);
+    m_results.ethtool_statistic_start = metrics::get_ethtool_statistic(m_description.interface.server);
+    m_results.ip_statistic_start      = metrics::get_ip_statistic(m_description.interface.server);
+    m_results.netstat_statistic_start = metrics::get_netstat_statistic();
 
     switch (m_description.metadata.method) {
     case test_description::metadata::IPERF: {
@@ -202,8 +205,9 @@ test_results iperf_server::get_results() {
         throw std::runtime_error("[iperf_server] E02 - iPerf control thread does not exist. Cannot get results.");
     }
 
-    m_results.ethtool_statistic_end = metrics::get_ethtool_statistic(m_description.interface.client);
-    m_results.ip_statistic_end      = metrics::get_ip_statistic(m_description.interface.client);
+    m_results.ethtool_statistic_end = metrics::get_ethtool_statistic(m_description.interface.server);
+    m_results.ip_statistic_end      = metrics::get_ip_statistic(m_description.interface.server);
+    m_results.netstat_statistic_end = metrics::get_netstat_statistic();
 
     switch (m_description.metadata.method) {
     case test_description::metadata::IPERF: {

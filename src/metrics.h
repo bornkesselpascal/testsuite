@@ -33,11 +33,21 @@ struct ip_statistic
     int32_t tx_collisions = -1;
 };
 
+struct netstat_statistic
+{
+    int64_t udp_pkg_rec         = -1;
+    int64_t udp_pkg_snt         = -1;
+    int32_t udp_rec_err         = -1;
+    int32_t udp_rec_buf_err     = -1;
+    int32_t udp_snt_buf_err     = -1;
+};
+
 class metrics
 {
 public:
     static ethtool_statistic get_ethtool_statistic(std::string interface_name);
     static      ip_statistic get_ip_statistic     (std::string interface_name);
+    static netstat_statistic get_netstat_statistic();
     static       std::string execute_command      (std::string command);
 
     metrics() = delete;
