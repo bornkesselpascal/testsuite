@@ -45,6 +45,7 @@ void test_results_parser::write_to_XML(std::string filename, test_results &resul
             pugi::xml_node report_node = query_node.append_child("report");
             report_node.append_child("misses").text() = std::to_string(report.cur_misses).c_str();
             report_node.append_child("total").text() = std::to_string(report.cur_packages).c_str();
+            report_node.append_child("timestamp").text() = std::to_string(report.elapsed_time).c_str();
         }
 
         break;

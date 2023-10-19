@@ -74,16 +74,24 @@ void custom_tester_client::run(struct test_results::custom* results) {
             m_comm_client.send(data, msg_size);
             msg_counter++;
 
-            if((msg_counter % 1000000) == 0) {
+            if((msg_counter % 100000) == 0) {
                 m_comm_client.send(&query_message, sizeof(query_message));
 
                 int bytes_received = m_comm_server.receive(&query_results, sizeof(query_results), true);
                 if(bytes_received == sizeof(query_results)) {
                     query_diff = msg_counter - query_results.number_received;
-                    results->query_response.push_back({query_diff, msg_counter});
+                    clock_gettime(CLOCK_MONOTONIC, &current_time);
+                    if ((current_time.tv_nsec - start_time.tv_nsec) < 0) {
+                        result_time.tv_sec = current_time.tv_sec - start_time.tv_sec - 1;
+                        result_time.tv_nsec = current_time.tv_nsec - start_time.tv_nsec + 1000000000L;
+                    } else {
+                        result_time.tv_sec = current_time.tv_sec - start_time.tv_sec;
+                        result_time.tv_nsec = current_time.tv_nsec - start_time.tv_nsec;
+                    }
+                    results->query_response.push_back({query_diff, msg_counter, (result_time.tv_sec + (result_time.tv_nsec * 1e-9))});
                     msg_counter++;
 
-                    if(query_diff > loss_limit) {
+                    if((msg_counter > 5000000) && (query_diff > loss_limit)) {
                         std::cout << "[ERROR] Loss limit reached. Aborting test scenario." << query_diff << std::endl;
                         break;
                     }

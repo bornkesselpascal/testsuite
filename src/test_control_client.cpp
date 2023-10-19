@@ -5,7 +5,7 @@
 #include <ctime>
 #include <unistd.h>
 
-const int gap_stepsize = 10000;
+const int gap_stepsize = 5000;
 
 
 test_control_client::test_control_client(client_description description)
@@ -38,7 +38,7 @@ void test_control_client::run() {
     int ctl_datagramsize_index = 0;
 
     /// MODIFIKATIONEN FUER REALSTRESS-TESTS
-    bool ctl_gap_init = false;
+    bool ctl_gap_init = true;
     /// MODIFIKATIONEN ENDE
 
     while(true) {
@@ -62,7 +62,7 @@ void test_control_client::run() {
         }
         else {
             if(m_description.target_connection.datagram.sizes.at(ctl_datagramsize_index) < 9000) {
-                m_description.target_connection.gap = 10000;
+                m_description.target_connection.gap = 20000;
             }
             else {
                 m_description.target_connection.gap = 60000;

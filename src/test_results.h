@@ -9,6 +9,7 @@
 struct query_report {
     long long int cur_packages;
     long long int cur_misses;
+    long double elapsed_time;
 };
 
 struct test_results {
