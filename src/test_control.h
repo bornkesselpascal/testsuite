@@ -69,6 +69,7 @@ public:
     static void               write_server_to_XML(std::string filename, server_description &description);
 
     static std::vector<std::string> read_client_main_XML(std::string filename);
+    static std::vector<std::string> read_server_main_XML(std::string filename);
 
     test_control_parser() = delete;
 };

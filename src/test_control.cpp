@@ -210,11 +210,7 @@ std::vector<std::string> test_control_parser::read_client_main_XML(std::string f
         if (root) {
             for (pugi::xml_node path_node = root.child("client_description"); path_node; path_node = path_node.next_sibling("client_description")) {
                 std::string description_path = path_node.child_value("path");
-                std::string execute          = path_node.child_value("execute");
-
-                if("true" == execute) {
-                    paths.push_back(description_path);
-                }
+                paths.push_back(description_path);
             }
         }
     } else {
@@ -257,6 +253,28 @@ void test_control_parser::write_server_to_XML(std::string filename, server_descr
     if(!doc.save_file(filename.c_str())) {
         throw std::runtime_error("[tc_parser] E02 - Error while saving XML file.");
     }
+}
+
+std::vector<std::string> test_control_parser::read_server_main_XML(std::string filename) {
+    std::vector<std::string> paths;
+
+    pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load_file(filename.c_str());
+
+    if (result) {
+        pugi::xml_node root = doc.child("description_files");
+
+        if (root) {
+            for (pugi::xml_node path_node = root.child("server_description"); path_node; path_node = path_node.next_sibling("server_description")) {
+                std::string description_path = path_node.child_value("path");
+                paths.push_back(description_path);
+            }
+        }
+    } else {
+        std::cerr << "XML parsing error: " << result.description() << std::endl;
+    }
+
+    return paths;
 }
 
 void test_control_logger::log_control(client_description description) {
