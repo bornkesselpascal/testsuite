@@ -16,7 +16,7 @@ stress::stress(test_description description, bool start_recording)
             pid_t current_pid = getpid();
             system(("chrt -o -p 0 " + std::to_string(current_pid)).c_str());
 
-            if(-1 == execlp("/usr/bin/nmon", "/usr/bin/nmon", "-F", (std::string(description.metadata.path) + "/" + std::string(description.metadata.t_uid) + "/system_log.nmon").c_str(), "-s", "1", nullptr)) {
+            if(-1 == execlp("/usr/bin/nmon", "/usr/bin/nmon", "-F", (std::string(description.metadata.path) + "/" + std::string(description.metadata.t_uid) + "/system_log.nmon").c_str(), "-s", "10","-c", "100000000000", nullptr)) {
                 throw std::runtime_error("[stress] Could not launch nmon. execlp failed.");
             }
 
