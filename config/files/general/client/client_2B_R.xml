@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<client_description>
+	<method>CUSTOM</method>
+	<path>/testsuite/client_2B_R/first_test</path>
+	<duration>
+		<short_duration>3600</short_duration>
+		<long_duration>0</long_duration>
+	</duration>
+	<target_connection>
+		<client_ip>10.2.1.51</client_ip>
+		<server_ip>10.2.1.50</server_ip>
+		<bandwidth_limit />
+		<port>8210</port>
+		<gap>2500</gap>
+		<datagram>
+			<sizes>
+				<value>80</value>
+				<value>8900</value>
+				<value>65000</value>
+			</sizes>
+			<random>false</random>
+		</datagram>
+	</target_connection>
+	<interface>
+		<client>enp1s0f1</client>
+		<server>enp7s0f1</server>
+	</interface>
+	<service_connection>
+		<server_ip>10.2.1.50</server_ip>
+		<port>9210</port>
+	</service_connection>
+	<client_only>false</client_only>
+	<stress>
+		<type>NONE</type>
+		<location>LOC_BOTH</location>
+	</stress>
+</client_description>

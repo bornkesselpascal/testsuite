@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	- This file contains all server descriptions for the test campaigns.
+	- Please remove entries that are not relevant for your machine.
+	- Save the file as "server.xml" in the testsuite folder.
+-->
+
+<description_files>
+	<server_description>
+		<path>/testsuite/config/server/server_1A_H.xml</path>
+	</server_description>
+	<server_description>
+		<path>/testsuite/config/server/server_1A_R.xml</path>
+	</server_description>
+	
+	<server_description>
+		<path>/testsuite/config/server/server_1B_H.xml</path>
+	</server_description>
+	<server_description>
+		<path>/testsuite/config/server/server_1B_R.xml</path>
+	</server_description>
+	
+	
+	<server_description>
+		<path>/testsuite/config/server/server_2A_H.xml</path>
+	</server_description>
+	<server_description>
+		<path>/testsuite/config/server/server_2A_R.xml</path>
+	</server_description>
+	
+	<server_description>
+		<path>/testsuite/config/server/server_2B_H.xml</path>
+	</server_description>
+	<server_description>
+		<path>/testsuite/config/server/server_2B_R.xml</path>
+	</server_description>
+	
+	
+	<server_description>
+		<path>/testsuite/config/server/server_3A_H.xml</path>
+	</server_description>
+	<server_description>
+		<path>/testsuite/config/server/server_3A_R.xml</path>
+	</server_description>
+	
+	<server_description>
+		<path>/testsuite/config/server/server_3B_H.xml</path>
+	</server_description>
+	<server_description>
+		<path>/testsuite/config/server/server_3B_R.xml</path>
+	</server_description>
+</description_files>

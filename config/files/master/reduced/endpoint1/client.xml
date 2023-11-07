@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+- This file contains all client descriptions for the test campaigns.
+- Please remove entries that are not relevant for your machine.
+- Save the file as "client.xml" in the testsuite folder.
+-->
+
+<description_files>
+	<client_description>
+		<path>/testsuite/config/client/client_1A_R.xml</path>
+	</client_description>
+</description_files>
