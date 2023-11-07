@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 const bool dynamic_scenario = false;
+const bool abort_missing_queue = false;
 const long long int loss_limit = 50;
 const int queue_frequency = 1000;
 const bool queue_log = true;
@@ -105,7 +106,9 @@ void custom_tester_client::run(struct test_results::custom* results) {
                 }
                 else {
                     std::cerr << "[custom_tester] Error when recieving query message." << std::endl;
-                    break;
+                    if (abort_missing_queue) {
+                        break;
+                    }
                 }
             }
 
