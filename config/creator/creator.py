@@ -1,9 +1,6 @@
 import os
 import re
-from support.xmlcreator import create_client_xml, create_server_xml
-
-test_name = "first_test"
-
+from xmlcreator import create_client_xml, create_server_xml
 
 def process_input_file(input_file):
     clients = {}
@@ -34,9 +31,9 @@ def process_input_file(input_file):
     for identifier, (client_name, client_ip, client_port, client_interface) in clients.items():
         if identifier in servers:
             server_name, server_ip, server_port, server_interface = servers[identifier]
-            create_client_xml(test_name, client_name, client_ip, client_port, client_interface, server_ip, server_port, server_interface)
+            create_client_xml(client_name, client_ip, client_port, client_interface, server_ip, server_port, server_interface)
             create_server_xml(server_name, server_ip, server_port)
 
 # Specify the path to your input file here
-input_file = 'pairs.txt'
+input_file = 'support/pairs.txt'
 process_input_file(input_file)

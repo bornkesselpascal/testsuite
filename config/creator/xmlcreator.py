@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
+from parameters import test_name, test_duration, test_cycletime, test_datagrams
 
-def create_client_xml(test_name, client_name, client_ip, client_port, client_interface, server_ip, server_port, server_interface):
+def create_client_xml(client_name, client_ip, client_port, client_interface, server_ip, server_port, server_interface):
     # Create the root element
     root = ET.Element("client_description")
     
@@ -12,7 +13,7 @@ def create_client_xml(test_name, client_name, client_ip, client_port, client_int
 
     # Create 'duration' element
     duration = ET.SubElement(root, "duration")
-    ET.SubElement(duration, "short_duration").text = "7200"
+    ET.SubElement(duration, "short_duration").text = test_duration  
     ET.SubElement(duration, "long_duration").text = "0"
 
     # Update 'target_connection' with provided client IP and port
@@ -21,12 +22,12 @@ def create_client_xml(test_name, client_name, client_ip, client_port, client_int
     ET.SubElement(target_connection, "server_ip").text = server_ip  # server IP is now dynamic
     ET.SubElement(target_connection, "bandwidth_limit").text = ""
     ET.SubElement(target_connection, "port").text = client_port
-    ET.SubElement(target_connection, "gap").text = "2500"
+    ET.SubElement(target_connection, "gap").text = test_cycletime
 
     # Create 'datagram' element
     datagram = ET.SubElement(target_connection, "datagram")
     sizes = ET.SubElement(datagram, "sizes")
-    for size in ["80", "8900", "65000"]:
+    for size in test_datagrams:
         ET.SubElement(sizes, "value").text = size
     ET.SubElement(datagram, "random").text = "false"
 
