@@ -15,6 +15,7 @@ if(GIT_FOUND)
     OUTPUT_VARIABLE GIT_COMMIT_HASH
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
+  message("Commit_ID: ${GIT_COMMIT_HASH}")
 else()
   set(GIT_COMMIT_HASH "0")
 endif()

@@ -1,4 +1,3 @@
-#include "custom_tester.h"
 #include "test_control.h"
 #include <iostream>
 #include <unistd.h>
@@ -25,28 +24,47 @@ enum type
     SERVER
 };
 
-bool get_user_input(type &type, mode &mode);
+bool get_user_input(type &type, mode &mode, bool &realtime);
 void start_client(std::string path);
 void start_server(std::string path);
 void parallel_execution(type type, std::vector<std::string> filepaths);
 
 int main()
 {
-    std::cout << "TestSuite (v" << COMMIT_HASH << ")" << std::endl
+    std::cout << "TestSuite | TestSuite Coordinator (v_" << COMMIT_HASH << ")[" << getpid() << "]" << std::endl
               << std::endl;
+
+    if(0 != geteuid()) {
+        std::cerr << "[error][coordinator#1] Please run TestSuite with root privileges." << std::endl;
+        return 1;
+    }
 
     type type;
     mode mode;
-    if (!get_user_input(type, mode))
+    bool realtime;
+    if (!get_user_input(type, mode, realtime))
     {
+        std::cerr << std::endl << "[error][coordinator#2] Invalid user input." << std::endl;
         return 1;
+    }
+
+    pid_t pid = getpid();
+    if(realtime) {
+        if(0 != system(("chrt -f -p 99 " + std::to_string(pid)).c_str())) {
+            return 1;
+        }
+    }
+    else {
+        if(0 != system(("chrt -o -p 0 " + std::to_string(pid)).c_str())) {
+            return 1;
+        }
     }
 
     switch (type)
     {
     case CLIENT:
     {
-        std::string filename = "/testsuite/client_master.xml";
+        std::string filename = "/testsuite/config/client.xml";
         std::vector<std::string> filepaths = test_control_parser::read_client_main_XML(filename);
 
         switch (mode)
@@ -70,7 +88,7 @@ int main()
     }
     case SERVER:
     {
-        std::string filename = "/testsuite/server_master.xml";
+        std::string filename = "/testsuite/config/server.xml";
         std::vector<std::string> filepaths = test_control_parser::read_server_main_XML(filename);
 
         switch (mode)
@@ -93,9 +111,15 @@ int main()
         break;
     }
     }
+
+    sleep(1);
+    std::cout << "Press [control][c] to end TestSuite Coordinator...";
+    char input;
+    std::cin >> input;
+    return 0;
 }
 
-bool get_user_input(type &type, mode &mode)
+bool get_user_input(type &type, mode &mode, bool &realtime)
 {
     // ASK FOR CLIENT OR SERVER
     std::cout << "Do you want to start a Client or Server? (c/s): ";
@@ -124,6 +148,22 @@ bool get_user_input(type &type, mode &mode)
     else if (input == 'p')
     {
         mode = PARALLEL;
+    }
+    else
+    {
+        return false;
+    }
+
+    // ASK FOR REALTIME
+    std::cout << "Do you want to start the tests as real time processes? (y/n): ";
+    std::cin >> input;
+    if (input == 'y')
+    {
+        realtime = true;
+    }
+    else if (input == 'n')
+    {
+        realtime = false;
     }
     else
     {
