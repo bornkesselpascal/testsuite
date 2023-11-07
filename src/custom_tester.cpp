@@ -5,6 +5,7 @@
 #include <iostream>
 #include <unistd.h>
 
+const bool dynamic_scenario = false;
 const long long int loss_limit = 50;
 const int queue_frequency = 1000;
 const bool queue_log = true;
@@ -97,7 +98,7 @@ void custom_tester_client::run(struct test_results::custom* results) {
                         results->query_response.push_back({query_diff, msg_counter, (result_time.tv_sec + (result_time.tv_nsec * 1e-9))});
                     }
 
-                    if(query_diff > loss_limit) {
+                    if(dynamic_scenario && (query_diff > loss_limit)) {
                         std::cout << "[ERROR] Loss limit reached. Aborting test scenario." << query_diff << std::endl;
                         break;
                     }
