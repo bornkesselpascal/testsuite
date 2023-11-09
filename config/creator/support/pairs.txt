@@ -12,8 +12,8 @@ client_3B_H @ 10.3.1.50:8310 enp8s0f1
 server_3B_R @ 10.3.1.50:9310 enp8s0f1
 server_1A_H @ 10.1.0.51:9100 enp1s0f0
 client_1A_R @ 10.1.0.51:8100 enp1s0f0
-server_1B_H @ 10.1.1.51:9110 enp7s0f0
-client_1B_R @ 10.1.1.51:8110 enp7s0f0
+server_1B_H @ 10.1.1.51:9110 enp1s0f1
+client_1B_R @ 10.1.1.51:8110 enp1s0f1
 server_2A_H @ 10.2.0.51:9200 enp1s0f0
 client_2A_R @ 10.2.0.51:8200 enp1s0f0
 server_2B_H @ 10.2.1.51:9210 enp1s0f1
