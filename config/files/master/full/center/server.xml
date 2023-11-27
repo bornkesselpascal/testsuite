@@ -32,4 +32,13 @@
 	<server_description>
 		<path>/testsuite/config/server/server_3B_R.xml</path>
 	</server_description>
+	
+	
+	<server_description>
+		<path>/testsuite/config/server/server_4A_R.xml</path>
+	</server_description>
+	
+	<server_description>
+		<path>/testsuite/config/server/server_4B_R.xml</path>
+	</server_description>
 </description_files>

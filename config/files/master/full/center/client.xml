@@ -32,4 +32,13 @@
 	<client_description>
 		<path>/testsuite/config/client/client_3B_H.xml</path>
 	</client_description>
+	
+	
+	<client_description>
+		<path>/testsuite/config/client/client_4A_H.xml</path>
+	</client_description>
+	
+	<client_description>
+		<path>/testsuite/config/client/client_4B_H.xml</path>
+	</client_description>
 </description_files>

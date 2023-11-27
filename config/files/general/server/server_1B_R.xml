@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<server_description>
-	<path>/testsuite</path>
-	<service_connection>
-		<server_ip>10.1.1.50</server_ip>
-		<port>9110</port>
-	</service_connection>
-</server_description>
