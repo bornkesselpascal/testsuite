@@ -41,8 +41,8 @@ struct test_description {
     } connection;
 
     struct interface {
-        char client[10];
-        char server[10];
+        char client[11];
+        char server[11];
     } interface;
 
     struct stress {
