@@ -38,7 +38,7 @@ void test_control_client::run() {
     int ctl_datagramsize_index = 0;
 
     /// MODIFIKATIONEN FUER REALSTRESS-TESTS
-    bool ctl_gap_init = false;
+//    bool ctl_gap_init = false;
     /// MODIFIKATIONEN ENDE
 
     while(true) {
@@ -57,30 +57,30 @@ void test_control_client::run() {
         }
 
         /// MODIFIKATIONEN FUER REALSTRESS-TESTS
-        if(ctl_gap_init) {
-            m_description.target_connection.gap += gap_stepsize;
-        }
-        else {
-            if(m_description.target_connection.datagram.sizes.at(ctl_datagramsize_index) < 9000) {
-                m_description.target_connection.gap = 10000;
-            }
-            else {
-                m_description.target_connection.gap = 60000;
-            }
-            ctl_gap_init = true;
-        }
+//        if(ctl_gap_init) {
+//            m_description.target_connection.gap += gap_stepsize;
+//        }
+//        else {
+//            if(m_description.target_connection.datagram.sizes.at(ctl_datagramsize_index) < 9000) {
+//                m_description.target_connection.gap = 10000;
+//            }
+//            else {
+//                m_description.target_connection.gap = 60000;
+//            }
+//            ctl_gap_init = true;
+//        }
 
-        if(ctl_stress_loss) {
-            ctl_stress_loss = false;
-            continue;
-        }
-        else {
-            m_description.target_connection.gap = 2500;
-            ctl_gap_init = false;
+//        if(ctl_stress_loss) {
+//            ctl_stress_loss = false;
+//            continue;
+//        }
+//        else {
+//            m_description.target_connection.gap = 2500;
+//            ctl_gap_init = false;
 
-            // Kein Verlust aufgetreten.
-            //    -> Fortfahren mit weiterer Datagrammgroesse.
-        }
+//            // Kein Verlust aufgetreten.
+//            //    -> Fortfahren mit weiterer Datagrammgroesse.
+//        }
         /// MODIFIKATIONEN ENDE
 
         ctl_datagramsize_index++;
