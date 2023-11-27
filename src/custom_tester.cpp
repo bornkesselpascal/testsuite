@@ -7,8 +7,9 @@
 
 const bool dynamic_scenario = false;
 const bool abort_missing_queue = false;
+const bool use_query = false;
 const long long int loss_limit = 50;
-const int queue_frequency = 1000;
+const int queue_frequency = 1000000;
 const bool queue_log = true;
 const bool use_qos = false;
 
@@ -79,7 +80,7 @@ void custom_tester_client::run(struct test_results::custom* results) {
             m_comm_client.send(data, msg_size);
             msg_counter++;
 
-            if((msg_counter % queue_frequency) == 0) {
+            if(use_query && ((msg_counter % queue_frequency) == 0)) {
                 m_comm_client.send(&query_message, sizeof(query_message));
 
                 int bytes_received = m_comm_server.receive(&query_results, sizeof(query_results), true);
