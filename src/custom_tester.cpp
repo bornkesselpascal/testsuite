@@ -5,13 +5,6 @@
 #include <iostream>
 #include <unistd.h>
 
-const bool dynamic_scenario = false;
-const bool abort_missing_queue = false;
-const bool use_query = false;
-const long long int loss_limit = 50;
-const int queue_frequency = 1000000;
-const bool queue_log = true;
-const bool use_qos = false;
 
 //                    _ _         _
 //                 __| (_)___ _ _| |_
@@ -19,139 +12,104 @@ const bool use_qos = false;
 //  custom_tester_\__|_|_\___|_||_\__|
 //
 
-custom_tester_client::custom_tester_client(custom_tester_client_description description)
+custom_tester_client::custom_tester_client(custom_tester_description description)
     : m_description(description)
-    , m_comm_client(m_description.server_ip, m_description.port, use_qos)
-    , m_comm_server(m_description.client_ip, (m_description.port + 1))
+    , m_sut_client(m_description.sock_type, m_description.src_ip, m_description.dst_ip, m_description.dst_port)
+    , m_helper_server(m_description.src_ip, (m_description.dst_port + 8))
 {
+    if(m_description.timestamps.enabled)
+    {
+        m_sut_client.enable_timestamps(m_description.timestamps.mode);
+    }
 }
 
-void custom_tester_client::run(struct test_results::custom* results) {
-    void* data = malloc(m_description.datagram.size);
-    communication::udp::message_type* msg_type = (communication::udp::message_type*) data;
-    *msg_type = communication::udp::CDATA_MSG;
+bool custom_tester_client::run(struct test_results::custom* results) {
+    void* buffer = malloc(m_description.datagram_size);
+    if(NULL == buffer) {
+        return false;
+    }
 
-    long long int msg_counter = 0;
-    int tmr_misses = 0;
+    custom_tester_test_message* test_message = reinterpret_cast<custom_tester_test_message*>(buffer);
+    test_message->type = CTMT_TEST;
+    test_message->sequence_number = 0;
 
-    struct timespec start_time, end_time, current_time, result_time;
+    long unsigned int timer_misses = 0;
+
+    struct timespec start_time, end_time, current_time, query_time;
     clock_gettime(CLOCK_MONOTONIC, &start_time);
     end_time.tv_sec = start_time.tv_sec + m_description.duration;
     end_time.tv_nsec = start_time.tv_nsec;
 
-    helpers::timer gap_timer;
+    results->timestamps.reserve(2000000 * m_description.duration);
+    timestamp_record record_buffer;
 
-    clock_gettime(CLOCK_MONOTONIC, &start_time);
-    if(m_description.datagram.random) {
-        // RANDOM DATAGRAM SIZE (0 - size)
-        size_t msg_size;
-        size_t max_size = m_description.datagram.size;
-        size_t min_size = sizeof(communication::udp::message_type);
-        gap_timer.initialize(m_description.gap);
+    helpers::timer cycle_timer;
+    cycle_timer.initialize(m_description.cycletime);
 
-        while(true) {
-            clock_gettime(CLOCK_MONOTONIC, &current_time);
-            if(current_time.tv_sec >= end_time.tv_sec) {
-                break;
-            }
-            msg_size = (std::rand() % (max_size - min_size)) + min_size;
-
-            m_comm_client.send(data, msg_size);
-            msg_counter++;
-            tmr_misses += gap_timer.wait();
+    while(true) {
+        clock_gettime(CLOCK_MONOTONIC, &current_time);
+        if(current_time.tv_sec >= end_time.tv_sec) {
+            break;
         }
-    }
-    else {
-        // FIXED DATAGRAM SIZE (size)
-        size_t msg_size = m_description.datagram.size;
-        gap_timer.initialize(m_description.gap);
 
-        // Variables for Query Message
-        communication::udp::message_type query_message = communication::udp::CQURY_MSG;
-        custom_tester_result_message     query_results;
-        int                              query_diff;
+        test_message->sequence_number++;
+        m_sut_client.send(buffer, m_description.datagram_size);
 
-        while(true) {
-            clock_gettime(CLOCK_MONOTONIC, &current_time);
-            if(current_time.tv_sec >= end_time.tv_sec) {
-                break;
-            }
-
-            m_comm_client.send(data, msg_size);
-            msg_counter++;
-
-            if(use_query && ((msg_counter % queue_frequency) == 0)) {
-                m_comm_client.send(&query_message, sizeof(query_message));
-
-                int bytes_received = m_comm_server.receive(&query_results, sizeof(query_results), true);
-                if(bytes_received == sizeof(query_results)) {
-                    query_diff = msg_counter - query_results.number_received;
-                    msg_counter++;
-
-                    if(queue_log) {
-                        clock_gettime(CLOCK_MONOTONIC, &current_time);
-                        if ((current_time.tv_nsec - start_time.tv_nsec) < 0) {
-                            result_time.tv_sec = current_time.tv_sec - start_time.tv_sec - 1;
-                            result_time.tv_nsec = current_time.tv_nsec - start_time.tv_nsec + 1000000000L;
-                        } else {
-                            result_time.tv_sec = current_time.tv_sec - start_time.tv_sec;
-                            result_time.tv_nsec = current_time.tv_nsec - start_time.tv_nsec;
-                        }
-                        results->query_response.push_back({query_diff, msg_counter, (result_time.tv_sec + (result_time.tv_nsec * 1e-9))});
-                    }
-
-                    if(dynamic_scenario && (query_diff > loss_limit)) {
-                        std::cout << "[ERROR] Loss limit reached. Aborting test scenario." << query_diff << std::endl;
-                        break;
-                    }
-                }
-                else {
-                    std::cerr << "[custom_tester] Error when recieving query message." << std::endl;
-                    if (abort_missing_queue) {
-                        break;
-                    }
-                }
-            }
-
-            tmr_misses += gap_timer.wait();
+        if (m_description.timestamps.enabled) {
+            record_buffer.sequence_number = test_message->sequence_number;
+            record_buffer.m_snt_program = m_sut_client.client_timestamps.m_snt_program;
+            results->timestamps.push_back(record_buffer);
         }
+
+        if(m_description.query.enabled) {
+            // TODO: implement query and dynamic scenario
+        }
+
+        timer_misses += cycle_timer.wait();
     }
 
+    // Get timestamp for test results.
     clock_gettime(CLOCK_MONOTONIC, &current_time);
     if ((current_time.tv_nsec - start_time.tv_nsec) < 0) {
-        result_time.tv_sec = current_time.tv_sec - start_time.tv_sec - 1;
-        result_time.tv_nsec = current_time.tv_nsec - start_time.tv_nsec + 1000000000L;
+        query_time.tv_sec = current_time.tv_sec - start_time.tv_sec - 1;
+        query_time.tv_nsec = current_time.tv_nsec - start_time.tv_nsec + 1000000000L;
     } else {
-        result_time.tv_sec = current_time.tv_sec - start_time.tv_sec;
-        result_time.tv_nsec = current_time.tv_nsec - start_time.tv_nsec;
+        query_time.tv_sec = current_time.tv_sec - start_time.tv_sec;
+        query_time.tv_nsec = current_time.tv_nsec - start_time.tv_nsec;
     }
 
-    free(data);
+
     sleep(4);
 
-    communication::udp::message_type end_message = communication::udp::CSTOP_MSG;
-    int bytes_send = m_comm_client.send(&end_message, sizeof(end_message));
-    if(bytes_send == -1) {
-        std::cerr << "[custom_tester] Error when sending end message." << std::endl;
+    // Send stop message.
+    custom_tester_message_type end_message = CTMT_END;
+    int bytes_snt = m_sut_client.send(&end_message, sizeof(end_message));
+    if (bytes_snt == -1) {
+        free(buffer);
+        return false;
     }
 
     custom_tester_result_message server_results;
-    int bytes_received = m_comm_server.receive(&server_results, sizeof(custom_tester_result_message));
-    if(bytes_received == -1) {
-        std::cerr << "[custom_tester] Error when recieving result message." << std::endl;
+    int bytes_rcv = m_helper_server.receive(&server_results, sizeof(custom_tester_result_message));
+    if (bytes_rcv == -1) {
+        free(buffer);
+        return false;
     }
 
-    std::cout << "Packages send    : " << msg_counter << std::endl;
-    std::cout << "Packages received: " << server_results.number_received << std::endl;
-    std::cout << "Timer misses     : " << tmr_misses << std::endl;
+    // Print info message.
+    std::cout << std::endl;
+    std::cout << "pkg_snt: " << test_message->sequence_number << std::endl;
+    std::cout << "tmr_mis: " << timer_misses << std::endl;
 
-    results->num_total = msg_counter;
-    results->num_loss  = (msg_counter - server_results.number_received);
-    results->num_misses = tmr_misses;
-    results->elapsed_time = result_time.tv_sec + (result_time.tv_nsec * 1e-9);
+    results->num_total = test_message->sequence_number;
+    results->num_misses = timer_misses;
+    results->elapsed_time = query_time.tv_sec + (query_time.tv_nsec * 1e-9);
 
-    close(m_comm_server.get_socket());
-    close(m_comm_client.get_socket());
+    free(buffer);
+    close(m_sut_client.get_socket());
+    close(m_helper_server.get_socket());
+
+    return true;
 }
 
 
@@ -162,45 +120,78 @@ void custom_tester_client::run(struct test_results::custom* results) {
 //  custom_tester_/__/\___|_|  \_/\___|_|
 //
 
-custom_tester_server::custom_tester_server(custom_tester_server_description description)
+custom_tester_server::custom_tester_server(custom_tester_description description)
     : m_description(description)
-    , m_comm_server(m_description.server_ip, m_description.port)
-    , m_comm_client(m_description.client_ip, (m_description.port + 1), use_qos)
+    , m_sut_server(m_description.sock_type, m_description.dst_ip, m_description.dst_port)
+    , m_helper_client(m_description.src_ip, (m_description.dst_port + 8))
 {
+    if(m_description.timestamps.enabled)
+    {
+        m_sut_server.enable_timestamps(m_description.timestamps.mode);
+    }
 }
 
-void custom_tester_server::run(struct test_results::custom* results) {
-    void* data = malloc(m_description.datagram.size);
-    communication::udp::message_type* msg_type = (communication::udp::message_type*) data;
-
-    long long int msg_counter = 0;
-    custom_tester_result_message query_message;
-
-    while(1) {
-        m_comm_server.receive(data, m_description.datagram.size);
-
-        if(*msg_type == communication::udp::message_type::CSTOP_MSG) {
-            break;
-        }
-        else if(*msg_type == communication::udp::CQURY_MSG) {
-            query_message.number_received = msg_counter;
-            m_comm_client.send(&query_message, sizeof(query_message));
-        }
-        msg_counter++;
+bool custom_tester_server::run(struct test_results::custom* results) {
+    void* buffer = malloc(UCE_MTU);
+    if(NULL == buffer) {
+        return false;
     }
 
-    free(data);
+    custom_tester_message_type* message_type;
+    custom_tester_test_message* test_message;
+    switch (m_description.sock_type)
+    {
+    case uce::sock_type::ST_UDP:
+        message_type = reinterpret_cast<custom_tester_message_type*>(buffer);
+        test_message = reinterpret_cast<custom_tester_test_message*>(buffer);
+        break;
+    case uce::sock_type::ST_RAW:
+        message_type = (custom_tester_message_type*)((char*) buffer + UCE_HEADER_IP_SIZE + UCE_HEADER_UDP_SIZE);
+        test_message = (custom_tester_test_message*)((char*) buffer + UCE_HEADER_IP_SIZE + UCE_HEADER_UDP_SIZE);
+        break;
+    case uce::sock_type::ST_PACKET:
+        message_type = (custom_tester_message_type*)((char*) buffer + UCE_HEADER_ETH_SIZE + UCE_HEADER_IP_SIZE + UCE_HEADER_UDP_SIZE);
+        test_message = (custom_tester_test_message*)((char*) buffer + UCE_HEADER_ETH_SIZE + UCE_HEADER_IP_SIZE + UCE_HEADER_UDP_SIZE);
+        break;
+    }
+
+    long unsigned int sequence_number = 0;
+
+    results->timestamps.reserve(2000000 * m_description.duration);
+    timestamp_record record_buffer;
+
+    while(1) {
+        m_sut_server.receive(buffer, UCE_MTU);
+
+        if(*message_type == CTMT_END) {
+            break;
+        }
+        else if(*message_type == CTMT_TEST) {
+            if (m_description.timestamps.enabled) {
+                record_buffer.sequence_number = test_message->sequence_number;
+                record_buffer.m_rec_sw = m_sut_server.server_timestamps.m_rec_sw;
+                record_buffer.m_rec_program = m_sut_server.server_timestamps.m_rec_program;
+                results->timestamps.push_back(record_buffer);
+            }
+        }
+
+        sequence_number++;
+    }
 
     custom_tester_result_message server_results;
-    server_results.number_received = msg_counter;
+    server_results.number_received = sequence_number;
 
     sleep(1);
 
-    int bytes_send = m_comm_client.send(&server_results, sizeof(server_results));
+    int bytes_send = m_helper_client.send(&server_results, sizeof(server_results));
     if(bytes_send == -1) {
-        std::cerr << "[custom_tester] Error when sending result message." << std::endl;
+        free(buffer);
+        return false;
     }
 
-    close(m_comm_server.get_socket());
-    close(m_comm_client.get_socket());
+    free(buffer);
+    close(m_sut_server.get_socket());
+    close(m_helper_client.get_socket());
+
+    return true;
 }
