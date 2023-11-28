@@ -38,6 +38,8 @@ add_executable(TestSuite testsuite.cpp
     test_control.h test_control.cpp
     custom_tester.h custom_tester.cpp
     helpers.h helpers.cpp
+    lib/uce/uce.h lib/uce/uce_client.cpp lib/uce/uce_server.cpp
+    lib/uce/uce_support.h lib/uce/uce_support.cpp
     )
 
 target_link_libraries(TestSuite PRIVATE pugixml)
