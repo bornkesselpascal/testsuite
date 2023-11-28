@@ -6,10 +6,11 @@
 #include "metrics.h"
 #include "test_description.h"
 
-struct query_report {
-    long long int cur_packages;
-    long long int cur_misses;
-    long double elapsed_time;
+struct timestamp_record {
+    long unsigned int sequence_number;
+    struct timespec m_snt_program;
+    struct timespec m_rec_sw;
+    struct timespec m_rec_program;
 };
 
 struct test_results {
@@ -19,23 +20,11 @@ struct test_results {
         STATUS_UNKNOWN,
     } status = test_results::STATUS_UNKNOWN;
 
-    struct iperf {
-        std::string interval;
-        std::string transfer;
-        std::string bandwidth;
-        std::string jitter;
-        long long int num_loss = -1;
-        long long int num_total = -1;
-
-        std::string startup_message;
-    } iperf;
-
     struct custom {
-        long long int num_loss = -1;
         long long int num_total = -1;
         long long int num_misses = -1;
         long double   elapsed_time = -1;
-        std::vector<query_report> query_response;
+        std::vector<timestamp_record> timestamps;
     } custom;
 
     ethtool_statistic ethtool_statistic_start;
@@ -53,7 +42,7 @@ struct test_results {
 class test_results_parser
 {
 public:
-    static void write_to_XML(std::string filename, test_results &results, enum test_description::metadata::method method);
+    static void write_to_XML(std::string filename, test_results &results, std::string type);
 
     test_results_parser() = delete;
 };

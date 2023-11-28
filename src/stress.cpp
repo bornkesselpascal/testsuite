@@ -14,7 +14,9 @@ stress::stress(test_description description, bool start_recording)
         }
         else if(0 == pid_nmon) {
             pid_t current_pid = getpid();
-            system(("chrt -o -p 0 " + std::to_string(current_pid)).c_str());
+            if (system(("chrt -o -p 0 " + std::to_string(current_pid)).c_str()) < 0) {
+                throw std::runtime_error("[stress] Could not launch nmon. system failed.");
+            }
 
             if(-1 == execlp("/usr/bin/nmon", "/usr/bin/nmon", "-F", (std::string(description.metadata.path) + "/" + std::string(description.metadata.t_uid) + "/system_log.nmon").c_str(), "-s", "10","-c", "100000000000", nullptr)) {
                 throw std::runtime_error("[stress] Could not launch nmon. execlp failed.");
@@ -32,7 +34,9 @@ stress::stress(test_description description, bool start_recording)
         }
         else if(0 == pid_stress) {
             pid_t current_pid = getpid();
-            system(("chrt -o -p 0 " + std::to_string(current_pid)).c_str());
+            if (system(("chrt -o -p 0 " + std::to_string(current_pid)).c_str()) < 0) {
+                throw std::runtime_error("[stress] Could not launch stress-ng. system failed.");
+            }
 
             int ret = 0;
             int duration = (description.duration == -1) ? 68400 : (description.duration+5);
@@ -76,7 +80,9 @@ stress::~stress() {
 void stress::stop()
 {
     if(m_type != stress_type::NONE) {
-        system("killall stress-ng");
+        if (system("killall stress-ng") < 0) {
+        }
     }
-    system("killall nmon");
+    if (system("killall nmon") < 0) {
+    }
 }

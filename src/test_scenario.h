@@ -31,7 +31,6 @@ public:
     bool stop() override;
 
 protected:
-    void write_log(bool error = false, std::string error_message = "");
     virtual std::string get_type() const override { return "client"; }
 
 private:

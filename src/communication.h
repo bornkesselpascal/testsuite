@@ -12,10 +12,6 @@ namespace udp {
 enum message_type {
     DESCR_MSG,
     TSTOP_MSG,
-    CDATA_MSG,
-    CSTOP_MSG,
-    CRESU_MSG,
-    CQURY_MSG,
 };
 
 class client {

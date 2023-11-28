@@ -26,30 +26,25 @@ protected:
 class iperf_client : public iperf
 {
 public:
-    iperf_client(test_description description, bool udp = true);
+    iperf_client(test_description description);
     void start() override;
     test_results get_results() override;
 
 private:
     std::unique_ptr<std::thread> m_thread_ptr;
-
-    custom_tester_client_description m_custom_description;
+    custom_tester_description m_custom_description;
 };
 
 class iperf_server : public iperf
 {
 public:
-    iperf_server(enum test_description::metadata::method method, int datagramsize, bool udp = false);
-    ~iperf_server();
     void start() override;
     void load_test(test_description description);
     test_results get_results() override;
 
 private:
     std::unique_ptr<std::thread> m_thread_ptr;
-    bool m_started = false;
-
-    custom_tester_server_description m_custom_description;
+    custom_tester_description m_custom_description;
 };
 
 

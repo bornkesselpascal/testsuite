@@ -18,11 +18,6 @@ enum mode
     CLASSIC,
     PARALLEL
 };
-enum type
-{
-    CLIENT,
-    SERVER
-};
 enum affinity
 {
     DISABLED,
@@ -30,10 +25,10 @@ enum affinity
     INVERSED
 };
 
-bool get_user_input(type &type, mode &mode, bool &realtime, affinity &affinity);
+bool get_user_input(testsuite_type &type, mode &mode, bool &realtime, affinity &affinity);
 void start_client(std::string path, affinity affinity);
 void start_server(std::string path, affinity affinity);
-void parallel_execution(type type, std::vector<std::string> filepaths, affinity affinity);
+void parallel_execution(testsuite_type type, std::vector<std::string> filepaths, affinity affinity);
 
 int main()
 {
@@ -45,7 +40,7 @@ int main()
         return 1;
     }
 
-    type type;
+    testsuite_type type;
     mode mode;
     bool realtime;
     affinity affinity;
@@ -69,10 +64,10 @@ int main()
 
     switch (type)
     {
-    case CLIENT:
+    case testsuite_type::CLIENT:
     {
         std::string filename = "/testsuite/config/client.xml";
-        std::vector<std::string> filepaths = test_control_parser::read_client_main_XML(filename);
+        std::vector<std::string> filepaths = test_control_parser::read_main_XML(filename, testsuite_type::CLIENT);
 
         switch (mode)
         {
@@ -93,10 +88,10 @@ int main()
 
         break;
     }
-    case SERVER:
+    case testsuite_type::SERVER:
     {
         std::string filename = "/testsuite/config/server.xml";
-        std::vector<std::string> filepaths = test_control_parser::read_server_main_XML(filename);
+        std::vector<std::string> filepaths = test_control_parser::read_main_XML(filename, testsuite_type::SERVER);
 
         switch (mode)
         {
@@ -126,7 +121,7 @@ int main()
     return 0;
 }
 
-bool get_user_input(type &type, mode &mode, bool &realtime, affinity &affinity)
+bool get_user_input(testsuite_type &type, mode &mode, bool &realtime, affinity &affinity)
 {
     // ASK FOR CLIENT OR SERVER
     std::cout << "Do you want to start a Client or Server? (c/s): ";
@@ -134,11 +129,11 @@ bool get_user_input(type &type, mode &mode, bool &realtime, affinity &affinity)
     std::cin >> input;
     if (input == 'c')
     {
-        type = CLIENT;
+        type = testsuite_type::CLIENT;
     }
     else if (input == 's')
     {
-        type = SERVER;
+        type = testsuite_type::SERVER;
     }
     else
     {
@@ -278,7 +273,7 @@ void start_server(std::string path, affinity affinity)
     current_server.run();
 }
 
-void parallel_execution(type type, std::vector<std::string> filepaths, affinity affinity)
+void parallel_execution(testsuite_type type, std::vector<std::string> filepaths, affinity affinity)
 {
     // Iterate through all client descriptions with index i
     for (int i = 0; i < filepaths.size(); i++)
@@ -294,12 +289,12 @@ void parallel_execution(type type, std::vector<std::string> filepaths, affinity 
         {
             switch (type)
             {
-            case CLIENT:
+            case testsuite_type::CLIENT:
             {
                 start_client(filepaths[i], affinity);
                 break;
             }
-            case SERVER:
+            case testsuite_type::SERVER:
             {
                 start_server(filepaths[i], affinity);
                 break;

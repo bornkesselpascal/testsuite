@@ -1,5 +1,6 @@
 #include "test_scenario.h"
 #include <fstream>
+#include <iostream>
 
 //
 //                 __ ___ _ __  _ __  ___ _ _
@@ -10,48 +11,21 @@
 test_scenario::test_scenario(test_description description)
     : m_description(description)
 {
-    system(("mkdir -p " + std::string(m_description.metadata.path) + "/" + std::string(m_description.metadata.t_uid)).c_str());
+    if (system(("mkdir -p " + std::string(m_description.metadata.path) + "/" + std::string(m_description.metadata.t_uid)).c_str()) < 0) {
+        std::cerr << "Could not create scenario path." << std::endl;
+    }
 }
 
 void test_scenario::write_log(bool error, std::string error_message) {
     std::string basepath = std::string(m_description.metadata.path) + "/" + std::string(m_description.metadata.t_uid);
-    std::time_t timestamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
     std::string filepath_description = basepath + "/test_description.xml";
     test_description_parser::write_to_XML(filepath_description, m_description);
     std::string filepath_results = basepath + "/test_results.xml";
     if(!error) {
-        test_results_parser::write_to_XML(filepath_results, m_results, m_description.metadata.method);
+        test_results_parser::write_to_XML(filepath_results, m_results, get_type());
     }
-
-    std::string filepath_log = basepath + "/" + get_type() + "_";
-    if(error) {
-        filepath_log += "error_log.txt";
-    }
-    else {
-        filepath_log += "scenario_log.txt";
-    }
-
-    std::ofstream filestream(filepath_log);
-    if(filestream.is_open()) {
-        filestream << "[TD] PATH            : " << filepath_description << std::endl;
-        filestream << std::endl;
-
-        filestream << "[TS] REPORT TIMESTAMP: " << std::ctime(&timestamp);
-        filestream << std::endl;
-
-        if(error) {
-            filestream << "[ER] ERROR MESSAGE   : " << error_message << std::endl;
-            filestream << std::endl;
-        }
-        else {
-            filestream << "[RE] PATH            : " << filepath_results << std::endl;
-            filestream << std::endl;
-        }
-    }
-    filestream.close();
 }
-
 
 
 //                    _ _         _
@@ -96,28 +70,6 @@ bool test_scenario_client::stop() {
     write_log();
 
     return true;
-}
-
-void test_scenario_client::write_log(bool error, std::string error_message) {
-    test_scenario::write_log();
-
-    if((m_results.status != m_results.STATUS_SUCCESS) && (m_description.metadata.method == test_description::metadata::IPERF)) {
-        std::string basepath = std::string(m_description.metadata.path) + "/" + std::string(m_description.metadata.t_uid);
-        std::string filepath_log = basepath + "/" + get_type() + "_";
-        if(error) {
-            filepath_log += "error_log.txt";
-        }
-        else {
-            filepath_log += "scenario_log.txt";
-        }
-        std::ofstream filestream(filepath_log, std::ios_base::app);
-        if(filestream.is_open()) {
-            filestream << "[RE] IPERF COMPLETE_OUTPUT  : " << std::endl;
-            filestream << m_client_ptr->get_current_output() << std::endl;
-            filestream << std::endl;
-        }
-        filestream.close();
-    }
 }
 
 

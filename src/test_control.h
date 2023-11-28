@@ -11,26 +11,18 @@ struct service_connection {
     int         port;
 };
 
-struct client_description {
-    enum test_description::metadata::method method;
-    std::string path;
 
-    struct duration {
-        int short_duration;
-        int long_duration;
-    } duration;
+struct client_description {
+    std::string path;
+    int duration;
 
     struct target_connection {
+        enum uce::sock_type type;
         std::string client_ip;
         std::string server_ip;
-        std::string bandwidth_limit;
-        int port;
-        int gap;
-        struct datagram {
-            std::vector<int> sizes;
-            bool random;
-        } datagram;
-        bool qos = false;
+        int  port;
+        int  cycletime;
+        std::vector<int>  datagram_sizes;
     } target_connection;
 
     struct interface {
@@ -39,16 +31,11 @@ struct client_description {
     } interface;
 
     struct service_connection service_connection;
-    bool client_only = false;
 
     struct stress {
-        enum test_description::stress::type type;
-        struct num {
-            int num_min;
-            int num_max;
-            int steps;
-        } num;
-        enum test_description::stress::location location;
+        stress_type type;
+        int num;
+        stress_location location;
     } stress;
 };
 
@@ -59,31 +46,19 @@ struct server_description {
 
 
 
+enum class testsuite_type {
+    CLIENT,
+    SERVER,
+};
+
 class test_control_parser
 {
 public:
     static client_description read_client_from_XML(std::string filename);
-    static void               write_client_to_XML(std::string filename, client_description &description);
-
     static server_description read_server_from_XML(std::string filename);
-    static void               write_server_to_XML(std::string filename, server_description &description);
-
-    static std::vector<std::string> read_client_main_XML(std::string filename);
-    static std::vector<std::string> read_server_main_XML(std::string filename);
+    static std::vector<std::string> read_main_XML(std::string filename, testsuite_type type);
 
     test_control_parser() = delete;
-};
-
-
-
-class test_control_logger
-{
-public:
-    static void log_control (client_description description);
-    static void log_control (server_description description);
-    static void log_scenario(std::string path, test_description description, test_results* results = nullptr);
-
-    test_control_logger() = delete;
 };
 
 #endif // TEST_CONTROL_H

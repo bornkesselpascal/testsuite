@@ -9,8 +9,9 @@ test_control_server::test_control_server(server_description description)
     : m_description(description)
     , m_comm_server(m_description.service_connection.server_ip, m_description.service_connection.port)
 {
-    system(("mkdir -p " + std::string(m_description.path)).c_str());
-    test_control_logger::log_control(m_description);
+    if (system(("mkdir -p " + std::string(m_description.path)).c_str()) < 0) {
+        std::cerr << "Could not create test control path." << std::endl;
+    }
 }
 
 void test_control_server::run() {
@@ -50,8 +51,7 @@ void test_control_server::run() {
 
 void test_control_server::handle_DESCR_MSG() {
     if(m_iperf_server_ptr == nullptr) {
-        m_iperf_server_ptr = std::shared_ptr<iperf_server>(new iperf_server(m_testdescription.metadata.method, m_testdescription.connection.iperf.datagram.size));
-        m_iperf_server_ptr->start();
+        m_iperf_server_ptr = std::shared_ptr<iperf_server>(new iperf_server());
     }
 
     m_scenario_ptr = std::unique_ptr<test_scenario_server>(new test_scenario_server(m_testdescription, m_iperf_server_ptr));
