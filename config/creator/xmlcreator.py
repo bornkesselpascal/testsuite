@@ -1,35 +1,35 @@
 import xml.etree.ElementTree as ET
-from parameters import test_name, test_duration, test_cycletime, test_datagrams
+from parameters import test_name, test_duration, test_cycletime, test_datagrams, test_type, test_dynamic, test_dyn_mode, test_dyn_min, test_dyn_max, test_dyn_steps
 
 def create_client_xml(client_name, client_ip, client_port, client_interface, server_ip, server_port, server_interface):
     # Create the root element
     root = ET.Element("client_description")
-    
-    # Create 'method' element
-    ET.SubElement(root, "method").text = "CUSTOM"
 
     # Create 'path' element
     ET.SubElement(root, "path").text = f"/testsuite/{client_name}/{test_name}"
 
     # Create 'duration' element
-    duration = ET.SubElement(root, "duration")
-    ET.SubElement(duration, "short_duration").text = test_duration  
-    ET.SubElement(duration, "long_duration").text = "0"
+    ET.SubElement(root, "duration").text = test_duration
+
+    if test_dynamic:
+        dynamic_behavior = ET.SubElement(root, "dynamic_behavior")
+        ET.SubElement(dynamic_behavior, "mode").text = test_dyn_mode
+        ET.SubElement(dynamic_behavior, "min").text = test_dyn_min
+        ET.SubElement(dynamic_behavior, "max").text = test_dyn_max
+        ET.SubElement(dynamic_behavior, "steps").text = test_dyn_steps
 
     # Update 'target_connection' with provided client IP and port
     target_connection = ET.SubElement(root, "target_connection")
+    ET.SubElement(target_connection, "type").text = test_type
     ET.SubElement(target_connection, "client_ip").text = client_ip
-    ET.SubElement(target_connection, "server_ip").text = server_ip  # server IP is now dynamic
-    ET.SubElement(target_connection, "bandwidth_limit").text = ""
+    ET.SubElement(target_connection, "server_ip").text = server_ip
     ET.SubElement(target_connection, "port").text = client_port
-    ET.SubElement(target_connection, "gap").text = test_cycletime
+    ET.SubElement(target_connection, "cycletime").text = test_cycletime
 
     # Create 'datagram' element
-    datagram = ET.SubElement(target_connection, "datagram")
-    sizes = ET.SubElement(datagram, "sizes")
+    datagram = ET.SubElement(target_connection, "datagram_sizes")
     for size in test_datagrams:
-        ET.SubElement(sizes, "value").text = size
-    ET.SubElement(datagram, "random").text = "false"
+        ET.SubElement(datagram, "size").text = size
 
     # Create 'interface' element
     interface = ET.SubElement(root, "interface")
@@ -38,15 +38,13 @@ def create_client_xml(client_name, client_ip, client_port, client_interface, ser
 
     # Update 'service_connection' with provided server IP and port
     service_connection = ET.SubElement(root, "service_connection")
-    ET.SubElement(service_connection, "server_ip").text = server_ip  # server IP is now dynamic
+    ET.SubElement(service_connection, "server_ip").text = server_ip
     ET.SubElement(service_connection, "port").text = server_port
-   
-    # Create 'client_only' element
-    ET.SubElement(root, "client_only").text = "false"
 
     # Create 'stress' element
     stress = ET.SubElement(root, "stress")
     ET.SubElement(stress, "type").text = "NONE"
+    ET.SubElement(stress, "num").text = 0
     ET.SubElement(stress, "location").text = "LOC_BOTH"
 
     # Create the XML tree and write it to a file
