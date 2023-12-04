@@ -25,6 +25,28 @@ client_description test_control_parser::read_client_from_XML(std::string filenam
     description.path = root.child_value("path");
     description.duration = std::stoi(root.child_value("duration"));
 
+    pugi::xml_node dynamic_behavior = root.child("dynamic_behavior");
+    if(dynamic_behavior) {
+        std::string mode = dynamic_behavior.child_value("mode");
+        if(mode == "DATAGRAM_SIZE") {
+            description.dynamic_behavoir.mode = client_description::dynamic_behavoir::DATAGRAM_SIZE;
+        }
+        else if(mode == "CYCLE_TIME") {
+            description.dynamic_behavoir.mode = client_description::dynamic_behavoir::CYCLE_TIME;
+        }
+        else {
+            description.dynamic_behavoir.mode = client_description::dynamic_behavoir::DISABLED;
+        }
+
+        description.dynamic_behavoir.min   = std::stoi(root.child_value("min"));
+        description.dynamic_behavoir.max   = std::stoi(root.child_value("max"));
+        description.dynamic_behavoir.steps = std::stoi(root.child_value("steps"));
+    }
+    else {
+        // Node does not exist.
+        description.dynamic_behavoir.mode = client_description::dynamic_behavoir::DISABLED;
+    }
+
     pugi::xml_node targetconnection_node = root.child("target_connection");
     std::string connection_type = targetconnection_node.child_value("type");
     if(connection_type == "ST_UDP") {

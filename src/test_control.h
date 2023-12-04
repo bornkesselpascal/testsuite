@@ -11,10 +11,22 @@ struct service_connection {
     int         port;
 };
 
-
 struct client_description {
     std::string path;
     int duration;
+
+    // If dynamic behavoir is set, the respective values for Datagram Size or Cycle Time are ignored.
+    struct dynamic_behavoir {
+        enum mode {
+            DISABLED,
+            DATAGRAM_SIZE,
+            CYCLE_TIME,
+        } mode = client_description::dynamic_behavoir::DISABLED;
+
+        int min;
+        int max;
+        int steps;
+    } dynamic_behavoir;
 
     struct target_connection {
         enum uce::sock_type type;

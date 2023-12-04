@@ -27,15 +27,95 @@ test_control_client::test_control_client(client_description description)
 }
 
 void test_control_client::run() {
+    switch (m_description.dynamic_behavoir.mode) {
+    case client_description::dynamic_behavoir::DISABLED:
+        run_dynamic_disabled();
+        break;
+    case client_description::dynamic_behavoir::DATAGRAM_SIZE:
+        run_dynamic_datagramsize();
+        break;
+    case client_description::dynamic_behavoir::CYCLE_TIME:
+        run_dynamic_cycletime();
+        break;
+    }
+}
+
+void test_control_client::run_dynamic_disabled()
+{
     int ctl_datagramsize_index = 0;
 
     while(true) {
         test_description current_description = test_description_builder::build(m_description, m_description.target_connection.datagram_sizes.at(ctl_datagramsize_index));
-        print_current_test_to_console(current_description, ctl_datagramsize_index);
+        print_current_test_to_console(current_description, m_description.target_connection.datagram_sizes.at(ctl_datagramsize_index));
         test_results current_results = perform_scenario(current_description);
 
         std::cout << "Szenario beendet." << std::endl;
         sleep(1);
+
+        ctl_datagramsize_index++;
+        if(ctl_datagramsize_index >= m_description.target_connection.datagram_sizes.size()) {
+            // Es wurden alle Datagramgroessen getestet.
+            //    -> Test beenden
+
+            break;
+        }
+    }
+}
+
+void test_control_client::run_dynamic_datagramsize()
+{
+    // Set the duration for each step.
+    int duration = m_description.duration / m_description.dynamic_behavoir.steps;
+    m_description.duration = duration;
+
+    int datagram_size = m_description.dynamic_behavoir.min;
+    int datagram_steps = (m_description.dynamic_behavoir.max - m_description.dynamic_behavoir.min) / m_description.dynamic_behavoir.steps;
+
+
+    while(true) {
+        test_description current_description = test_description_builder::build(m_description, datagram_size);
+        print_current_test_to_console(current_description, datagram_size);
+        test_results current_results = perform_scenario(current_description);
+
+        std::cout << "Szenario beendet." << std::endl;
+        sleep(1);
+
+        datagram_size += datagram_steps;
+        if(datagram_size > m_description.dynamic_behavoir.max) {
+            // Es wurden alle Steps getestet.
+            //    -> Test beenden
+
+            break;
+        }
+    }
+}
+
+void test_control_client::run_dynamic_cycletime()
+{
+    // Set the duration for each step.
+    int duration = m_description.duration / m_description.dynamic_behavoir.steps;
+    m_description.duration = duration;
+
+    int cycle_time = m_description.dynamic_behavoir.min;
+    int cycle_steps = (m_description.dynamic_behavoir.max - m_description.dynamic_behavoir.min) / m_description.dynamic_behavoir.steps;
+
+    int ctl_datagramsize_index = 0;
+
+    while(true) {
+        m_description.target_connection.cycletime = cycle_time;
+
+        test_description current_description = test_description_builder::build(m_description, m_description.target_connection.datagram_sizes.at(ctl_datagramsize_index));
+        print_current_test_to_console(current_description, m_description.target_connection.datagram_sizes.at(ctl_datagramsize_index));
+        test_results current_results = perform_scenario(current_description);
+
+        std::cout << "Szenario beendet." << std::endl;
+        sleep(1);
+
+        cycle_time += cycle_steps;
+        if (!(cycle_time > m_description.dynamic_behavoir.max)) {
+            // We dont reached the maximum. Continue with a smaller size.
+            continue;
+        }
 
         ctl_datagramsize_index++;
         if(ctl_datagramsize_index >= m_description.target_connection.datagram_sizes.size()) {
@@ -76,10 +156,10 @@ test_results test_control_client::perform_scenario(test_description testdescript
     return current_results;
 }
 
-void test_control_client::print_current_test_to_console(test_description testdescription, int datagramsize_index) {
+void test_control_client::print_current_test_to_console(test_description testdescription, int datagramsize) {
     std::cout << "* [TC_CLIENT] NEXT TEST" << std::endl;
     std::cout << "* - T_UID      : " << testdescription.metadata.t_uid << std::endl;
     std::cout << "* - CYCLETIME  : " << testdescription.connection.cycletime<< std::endl;
-    std::cout << "* - DATAGR-SIZE: " << m_description.target_connection.datagram_sizes.at(datagramsize_index) << std::endl;
+    std::cout << "* - DATAGR-SIZE: " << datagramsize << std::endl;
     std::cout << "* - DURATION   : " << testdescription.duration << std::endl;
 }

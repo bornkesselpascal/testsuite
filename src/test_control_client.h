@@ -12,6 +12,9 @@ public:
     void run();
 
 private:
+    void run_dynamic_disabled();
+    void run_dynamic_datagramsize();
+    void run_dynamic_cycletime();
     test_results perform_scenario(test_description testdescription);
     void print_current_test_to_console(test_description testdescription, int datagramsize_index);
 
