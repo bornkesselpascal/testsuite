@@ -29,6 +29,7 @@ bool get_user_input(testsuite_type &type, mode &mode, bool &realtime, affinity &
 void start_client(std::string path, affinity affinity);
 void start_server(std::string path, affinity affinity);
 void parallel_execution(testsuite_type type, std::vector<std::string> filepaths, affinity affinity);
+std::string select_path(const std::vector<std::string>& filepaths);
 
 int main()
 {
@@ -73,10 +74,7 @@ int main()
         {
         case CLASSIC:
         {
-            if (filepaths.size() > 0)
-            {
-                start_client(filepaths[0], affinity);
-            }
+            start_client(select_path(filepaths), affinity);
             break;
         }
         case PARALLEL:
@@ -97,10 +95,7 @@ int main()
         {
         case CLASSIC:
         {
-            if (filepaths.size() > 0)
-            {
-                start_server(filepaths[0], affinity);
-            }
+            start_server(select_path(filepaths), affinity);
             break;
         }
         case PARALLEL:
@@ -308,5 +303,30 @@ void parallel_execution(testsuite_type type, std::vector<std::string> filepaths,
             break;
         }
         }
+    }
+}
+
+std::string select_path(const std::vector<std::string>& filepaths)
+{
+    int choice = 0;
+
+    // Display the paths with numbers
+    for (size_t i = 0; i < filepaths.size(); i++)
+    {
+        std::cout << (i + 1) << " : " << filepaths[i] << std::endl;
+    }
+
+    // Ask for the user input
+    std::cout << "Description number: " << std::endl;
+    std::cin >> choice;
+
+    // Validate the choice
+    if (choice > 0 && choice <= filepaths.size())
+    {
+        return filepaths[choice - 1];
+    }
+    else
+    {
+        return filepaths[0]; // Invalid choice defaults 0.
     }
 }
