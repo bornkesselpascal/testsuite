@@ -1,12 +1,12 @@
 import xml.etree.ElementTree as ET
-from parameters import test_name, test_duration, test_cycletime, test_datagrams, test_type, test_dynamic, test_dyn_mode, test_dyn_min, test_dyn_max, test_dyn_steps
+from parameters import test_name, test_duration, test_cycletime, test_datagrams, test_type, test_dynamic, test_dyn_mode, test_dyn_min, test_dyn_max, test_dyn_steps, test_latency
 
 def create_client_xml(client_name, client_ip, client_port, client_interface, server_ip, server_port, server_interface):
     # Create the root element
     root = ET.Element("client_description")
 
     # Create 'path' element
-    ET.SubElement(root, "path").text = f"/testsuite/{client_name}/{test_name}"
+    ET.SubElement(root, "path").text = f"/testsuite/{client_name[7:]}/{test_name}"
 
     # Create 'duration' element
     ET.SubElement(root, "duration").text = test_duration
@@ -44,8 +44,11 @@ def create_client_xml(client_name, client_ip, client_port, client_interface, ser
     # Create 'stress' element
     stress = ET.SubElement(root, "stress")
     ET.SubElement(stress, "type").text = "NONE"
-    ET.SubElement(stress, "num").text = 0
+    ET.SubElement(stress, "num").text = "0"
     ET.SubElement(stress, "location").text = "LOC_BOTH"
+
+    # Create 'latency_measurement' element
+    ET.SubElement(root, "latency_measurement").text = test_latency
 
     # Create the XML tree and write it to a file
     tree = ET.ElementTree(root)
