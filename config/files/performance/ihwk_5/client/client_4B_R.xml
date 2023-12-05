@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<client_description>
+	<path>/testsuite/4B_R/ihwk_5</path>
+	<duration>267</duration>
+	<dynamic_behavior>
+		<mode>DATAGRAM_SIZE</mode>
+		<min>10</min>
+		<max>8900</max>
+		<steps>89</steps>
+	</dynamic_behavior>
+	<target_connection>
+		<type>ST_RAW</type>
+		<client_ip>10.4.1.51</client_ip>
+		<server_ip>10.4.1.50</server_ip>
+		<port>8310</port>
+		<cycletime>1</cycletime>
+		<datagram_sizes>
+			<size>80</size>
+			<size>8900</size>
+			<size>65000</size>
+		</datagram_sizes>
+	</target_connection>
+	<interface>
+		<client>enp1s0f1</client>
+		<server>enp175s0f1</server>
+	</interface>
+	<service_connection>
+		<server_ip>10.4.1.50</server_ip>
+		<port>9410</port>
+	</service_connection>
+	<stress>
+		<type>NONE</type>
+		<num>0</num>
+		<location>LOC_BOTH</location>
+	</stress>
+	<latency_measurement>END_TO_END</latency_measurement>
+</client_description>

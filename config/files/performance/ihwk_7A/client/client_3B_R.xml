@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<client_description>
+	<path>/testsuite/3B_R/ihwk_7A</path>
+	<duration>100</duration>
+	<dynamic_behavior>
+		<mode>CYCLE_TIME</mode>
+		<min>1</min>
+		<max>101</max>
+		<steps>20</steps>
+	</dynamic_behavior>
+	<target_connection>
+		<type>ST_UDP</type>
+		<client_ip>10.3.1.51</client_ip>
+		<server_ip>10.3.1.50</server_ip>
+		<port>8310</port>
+		<cycletime>1</cycletime>
+		<datagram_sizes>
+			<size>80</size>
+			<size>8900</size>
+		</datagram_sizes>
+	</target_connection>
+	<interface>
+		<client>enp1s0f1</client>
+		<server>enp59s0f1</server>
+	</interface>
+	<service_connection>
+		<server_ip>10.3.1.50</server_ip>
+		<port>9310</port>
+	</service_connection>
+	<stress>
+		<type>NONE</type>
+		<num>0</num>
+		<location>LOC_BOTH</location>
+	</stress>
+	<latency_measurement>END_TO_END</latency_measurement>
+</client_description>
