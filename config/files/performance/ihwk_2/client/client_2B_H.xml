@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <client_description>
 	<path>/testsuite/2B_H/ihwk_2</path>
-	<duration>20</duration>
+	<duration>10</duration>
 	<target_connection>
 		<type>ST_RAW</type>
 		<client_ip>10.2.1.50</client_ip>
@@ -11,7 +11,6 @@
 		<datagram_sizes>
 			<size>80</size>
 			<size>8900</size>
-			<size>65000</size>
 		</datagram_sizes>
 	</target_connection>
 	<interface>

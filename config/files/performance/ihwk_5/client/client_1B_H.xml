@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <client_description>
 	<path>/testsuite/1B_H/ihwk_5</path>
-	<duration>267</duration>
+	<duration>102</duration>
 	<dynamic_behavior>
 		<mode>DATAGRAM_SIZE</mode>
 		<min>10</min>
-		<max>8900</max>
-		<steps>89</steps>
+		<max>8510</max>
+		<steps>17</steps>
 	</dynamic_behavior>
 	<target_connection>
 		<type>ST_RAW</type>
@@ -16,8 +16,6 @@
 		<cycletime>1</cycletime>
 		<datagram_sizes>
 			<size>80</size>
-			<size>8900</size>
-			<size>65000</size>
 		</datagram_sizes>
 	</target_connection>
 	<interface>

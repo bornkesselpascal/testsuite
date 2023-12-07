@@ -1,13 +1,13 @@
 # Parameters
 
 test_name      = "ihwk_7B"
-test_duration  = "100"
+test_duration  = "90"
 
 test_dynamic   = True
 test_dyn_mode  = "CYCLE_TIME"     # DISABLED, DATAGRAM_SIZE, CYCLE_TIME
 test_dyn_min   = "1"
 test_dyn_max   = "301"
-test_dyn_steps = "30"
+test_dyn_steps = "15"
 
 test_type      = "ST_UDP"       # ST_UDP, ST_RAW, ST_PACKET
 test_cycletime = "1"

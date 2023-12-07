@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <client_description>
 	<path>/testsuite/4B_R/ihwk_1</path>
-	<duration>20</duration>
+	<duration>10</duration>
 	<target_connection>
 		<type>ST_UDP</type>
 		<client_ip>10.4.1.51</client_ip>

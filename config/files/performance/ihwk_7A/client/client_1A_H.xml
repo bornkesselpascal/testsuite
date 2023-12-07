@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <client_description>
 	<path>/testsuite/1A_H/ihwk_7A</path>
-	<duration>100</duration>
+	<duration>60</duration>
 	<dynamic_behavior>
 		<mode>CYCLE_TIME</mode>
 		<min>1</min>
 		<max>101</max>
-		<steps>20</steps>
+		<steps>10</steps>
 	</dynamic_behavior>
 	<target_connection>
 		<type>ST_UDP</type>

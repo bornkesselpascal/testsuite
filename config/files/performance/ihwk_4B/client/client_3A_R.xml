@@ -6,7 +6,7 @@
 		<mode>DATAGRAM_SIZE</mode>
 		<min>9000</min>
 		<max>65000</max>
-		<steps>56</steps>
+		<steps>28</steps>
 	</dynamic_behavior>
 	<target_connection>
 		<type>ST_UDP</type>
@@ -16,8 +16,6 @@
 		<cycletime>1</cycletime>
 		<datagram_sizes>
 			<size>80</size>
-			<size>8900</size>
-			<size>65000</size>
 		</datagram_sizes>
 	</target_connection>
 	<interface>
