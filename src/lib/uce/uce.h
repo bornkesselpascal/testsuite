@@ -78,7 +78,7 @@ public:
 
     int  get_socket() const { return m_socket; }
     bool enable_timestamps(timestamp_mode mode);
-    int  receive(void *msg, size_t max_size);
+    int  receive(void *msg, size_t max_size, bool busypoll = false);
 
     struct server_timestamps {
         bool enabled = false;

@@ -1,7 +1,7 @@
 #include "test_results.h"
 #include "pugixml.hpp"
 
-void test_results_parser::write_to_XML(std::string filename, test_results &results, std::string type) {
+void test_results_parser::write_to_XML(std::string filename, test_description& description, test_results& results, std::string type) {
     pugi::xml_document doc;
 
     pugi::xml_node root = doc.append_child("test_results");
@@ -26,25 +26,29 @@ void test_results_parser::write_to_XML(std::string filename, test_results &resul
     custom_node.append_child("num_misses").text() = std::to_string(results.custom.num_misses).c_str();
     custom_node.append_child("elapsed_time").text() = std::to_string(results.custom.elapsed_time).c_str();
 
-    pugi::xml_node timestamp_node = custom_node.append_child("timestamp");
-    for(timestamp_record &record : results.custom.timestamps) {
-        pugi::xml_node record_node = timestamp_node.append_child("record");
+    if(description.latency_measurement != test_description::latency_measurement::DISABLED) {
+        pugi::xml_node timestamp_node = custom_node.append_child("timestamp");
+        for(timestamp_record &record : results.custom.timestamps) {
+            pugi::xml_node record_node = timestamp_node.append_child("record");
 
-        record_node.append_child("sequence").text() = std::to_string(record.sequence_number).c_str();
+            record_node.append_child("sequence").text() = std::to_string(record.sequence_number).c_str();
 
-        if (type == "client") {
-            pugi::xml_node snt_prog =  record_node.append_child("snt_prog");
-            snt_prog.append_child("tv_sec").text() = std::to_string(record.m_snt_program.tv_sec).c_str();
-            snt_prog.append_child("tv_nsec").text() = std::to_string(record.m_snt_program.tv_nsec).c_str();
-        }
-        else if (type == "server") {
-            pugi::xml_node rec_sw =  record_node.append_child("rec_sw");
-            rec_sw.append_child("tv_sec").text() = std::to_string(record.m_rec_sw.tv_sec).c_str();
-            rec_sw.append_child("tv_nsec").text() = std::to_string(record.m_rec_sw.tv_nsec).c_str();
+            if (type == "client") {
+                pugi::xml_node snt_prog =  record_node.append_child("snt_prog");
+                snt_prog.append_child("tv_sec").text() = std::to_string(record.m_snt_program.tv_sec).c_str();
+                snt_prog.append_child("tv_nsec").text() = std::to_string(record.m_snt_program.tv_nsec).c_str();
+            }
+            else if (type == "server") {
+                if (description.latency_measurement == test_description::latency_measurement::FULL) {
+                    pugi::xml_node rec_sw =  record_node.append_child("rec_sw");
+                    rec_sw.append_child("tv_sec").text() = std::to_string(record.m_rec_sw.tv_sec).c_str();
+                    rec_sw.append_child("tv_nsec").text() = std::to_string(record.m_rec_sw.tv_nsec).c_str();
+                }
 
-            pugi::xml_node rec_prog =  record_node.append_child("rec_prog");
-            rec_prog.append_child("tv_sec").text() = std::to_string(record.m_rec_program.tv_sec).c_str();
-            rec_prog.append_child("tv_nsec").text() = std::to_string(record.m_rec_program.tv_nsec).c_str();
+                pugi::xml_node rec_prog =  record_node.append_child("rec_prog");
+                rec_prog.append_child("tv_sec").text() = std::to_string(record.m_rec_program.tv_sec).c_str();
+                rec_prog.append_child("tv_nsec").text() = std::to_string(record.m_rec_program.tv_nsec).c_str();
+            }
         }
     }
 

@@ -63,6 +63,4 @@ void test_control_server::handle_TSTOP_MSG() {
         m_scenario_ptr->stop();
         m_scenario_ptr.release();
     }
-
-    // test_control_logger::log_scenario(m_description.path, m_testdescription);
 }

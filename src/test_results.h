@@ -42,7 +42,7 @@ struct test_results {
 class test_results_parser
 {
 public:
-    static void write_to_XML(std::string filename, test_results &results, std::string type);
+    static void write_to_XML(std::string filename, test_description& description, test_results &results, std::string type);
 
     test_results_parser() = delete;
 };

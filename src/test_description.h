@@ -9,8 +9,8 @@ struct client_description;
 
 struct test_description {
     struct metadata {
-        char t_uid[21];
-        char path[50];
+        char t_uid[24];
+        char path[70];
     } metadata;
 
     int duration;
@@ -46,6 +46,12 @@ struct test_description {
             LOC_BOTH,
         } location;
     } stress;
+
+    enum latency_measurement {
+        DISABLED,
+        END_TO_END,
+        FULL,
+    } latency_measurement = test_description::latency_measurement::DISABLED;
 };
 
 typedef enum test_description::stress::type stress_type;

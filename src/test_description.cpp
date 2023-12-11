@@ -7,7 +7,7 @@
 #include <random>
 #include "pugixml.hpp"
 
-std::string generate_id();
+std::string generate_id(const int& cycletime, const int& datagramsize);
 size_t strlcpy(char* dst, const char* src, size_t dst_len);
 
 
@@ -24,7 +24,7 @@ test_description test_description_builder::build(client_description description,
         std::cerr << "Could not create test description path." << std::endl;
     }
 
-    std::string tdb_tuid = generate_id();
+    std::string tdb_tuid = generate_id(description.target_connection.cycletime, datagramsize);
     strlcpy(tdb_ret.metadata.t_uid, tdb_tuid.c_str(), sizeof(tdb_ret.metadata.t_uid));
     strlcpy(tdb_ret.metadata.path, description.path.c_str(), sizeof(tdb_ret.metadata.path));
 
@@ -43,6 +43,8 @@ test_description test_description_builder::build(client_description description,
     tdb_ret.stress.type = description.stress.type;
     tdb_ret.stress.num = description.stress.num;
     tdb_ret.stress.location = description.stress.location;
+
+    tdb_ret.latency_measurement = description.latency_measurement;
 
     return tdb_ret;
 }
@@ -137,6 +139,21 @@ void test_description_parser::write_to_XML(std::string filename, test_descriptio
     }
     }
 
+    switch(description.latency_measurement) {
+    case test_description::latency_measurement::DISABLED: {
+        metadata_node.append_child("latency_measurement").text() = "DISABLED";
+        break;
+    }
+    case test_description::latency_measurement::END_TO_END: {
+        metadata_node.append_child("latency_measurement").text() = "END_TO_END";
+        break;
+    }
+    case test_description::latency_measurement::FULL: {
+        metadata_node.append_child("latency_measurement").text() = "FULL";
+        break;
+    }
+    }
+
 
     if(!doc.save_file(filename.c_str())) {
         throw std::runtime_error("[td_parser] E02 - Error while saving XML file.");
@@ -145,12 +162,12 @@ void test_description_parser::write_to_XML(std::string filename, test_descriptio
 
 
 
-std::string generate_id() {
+std::string generate_id(const int& cycletime, const int& datagramsize) {
     std::string generated_tuid;
 
-    std::mt19937 mt(time(0));
-    std::uniform_int_distribution<int> dist(100000, 999999);
-    generated_tuid += std::to_string(dist(mt)) + "_";
+//    std::mt19937 mt(time(0));
+//    std::uniform_int_distribution<int> dist(100000, 999999);
+//    generated_tuid += std::to_string(dist(mt)) + "_";
 
     std::time_t current_time = std::time(nullptr);
     std::tm* time_info = std::localtime(&current_time);
@@ -160,6 +177,8 @@ std::string generate_id() {
     formatted_time << std::setw(2) << time_info->tm_hour << std::setw(2) << time_info->tm_min << std::setw(2) << time_info->tm_sec << '_'
                    << std::setw(2) << time_info->tm_mday << std::setw(2) << (time_info->tm_mon + 1) << std::setw(2) << (time_info->tm_year % 100);
     generated_tuid += formatted_time.str();
+
+    generated_tuid += "_" + std::to_string(cycletime) + "_" + std::to_string(datagramsize);
 
     return generated_tuid;
 }

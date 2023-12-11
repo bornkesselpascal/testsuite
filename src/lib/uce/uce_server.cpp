@@ -192,7 +192,7 @@ bool uce::server::enable_timestamps(timestamp_mode mode)
     return false;
 }
 
-int uce::server::receive(void *msg, size_t max_size)
+int uce::server::receive(void *msg, size_t max_size, bool busypoll)
 {
     m_receive_helper.iov.iov_base = msg;
     m_receive_helper.iov.iov_len = max_size;
@@ -201,25 +201,40 @@ int uce::server::receive(void *msg, size_t max_size)
     {
     case sock_type::ST_UDP:
     {
-        int bytes = ::recvmsg(m_socket, &(m_receive_helper.msh), 0);
-        if (server_timestamps.enabled) clock_gettime(CLOCK_REALTIME, &(server_timestamps.m_rec_program));
+        if (busypoll) {
+            int bytes;
 
-        // Process ancillary data to extract sw/hw timestamps.
-        if(server_timestamps.enabled)
-        {
-            struct cmsghdr *cmsg;
-            for (cmsg = CMSG_FIRSTHDR(&(m_receive_helper.msh)); cmsg != NULL; cmsg = CMSG_NXTHDR(&(m_receive_helper.msh), cmsg))
-            {
-                if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SO_TIMESTAMPING)
-                {
-                    struct timespec *timestamps = (struct timespec *) CMSG_DATA(cmsg);
-                    server_timestamps.m_rec_sw = timestamps[0]; // software timestamp
-                    server_timestamps.m_rec_hw = timestamps[2]; // hardware timestamp
+            while (true) {
+                bytes = recv(m_socket, msg, max_size, MSG_DONTWAIT);
+                if (bytes > 0) {
+                    if (server_timestamps.enabled) clock_gettime(CLOCK_REALTIME, &(server_timestamps.m_rec_program));
+                    break;
                 }
             }
-        }
 
-        return bytes;
+            return bytes;
+        }
+        else {
+            int bytes = recv(m_socket, msg, max_size, 0);
+            if (server_timestamps.enabled) clock_gettime(CLOCK_REALTIME, &(server_timestamps.m_rec_program));
+
+            // Process ancillary data to extract sw/hw timestamps.
+//            if(server_timestamps.enabled)
+//            {
+//                struct cmsghdr *cmsg;
+//                for (cmsg = CMSG_FIRSTHDR(&(m_receive_helper.msh)); cmsg != NULL; cmsg = CMSG_NXTHDR(&(m_receive_helper.msh), cmsg))
+//                {
+//                    if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SO_TIMESTAMPING)
+//                    {
+//                        struct timespec *timestamps = (struct timespec *) CMSG_DATA(cmsg);
+//                        server_timestamps.m_rec_sw = timestamps[0]; // software timestamp
+//                        server_timestamps.m_rec_hw = timestamps[2]; // hardware timestamp
+//                    }
+//                }
+//            }
+
+            return bytes;
+        }
     }
     case sock_type::ST_RAW:
     case sock_type::ST_PACKET:

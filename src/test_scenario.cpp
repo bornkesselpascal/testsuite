@@ -23,7 +23,7 @@ void test_scenario::write_log(bool error, std::string error_message) {
     test_description_parser::write_to_XML(filepath_description, m_description);
     std::string filepath_results = basepath + "/test_results.xml";
     if(!error) {
-        test_results_parser::write_to_XML(filepath_results, m_results, get_type());
+        test_results_parser::write_to_XML(filepath_results, m_description, m_results, get_type());
     }
 }
 

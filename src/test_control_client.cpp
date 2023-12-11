@@ -118,6 +118,7 @@ void test_control_client::run_dynamic_cycletime()
         }
 
         ctl_datagramsize_index++;
+        cycle_time = m_description.dynamic_behavoir.min;
         if(ctl_datagramsize_index >= m_description.target_connection.datagram_sizes.size()) {
             // Es wurden alle Datagramgroessen getestet.
             //    -> Test beenden

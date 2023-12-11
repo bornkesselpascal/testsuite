@@ -38,8 +38,16 @@ iperf_client::iperf_client(test_description description) {
     m_custom_description.cycletime     = m_description.connection.cycletime;
 
     // timestamps (fixed)
-    m_custom_description.timestamps.enabled = true;
-    m_custom_description.timestamps.mode    = uce::timestamp_mode::TSTMP_SW;
+    if(description.latency_measurement != test_description::latency_measurement::DISABLED) {
+        m_custom_description.timestamps.enabled = true;
+
+        if(description.latency_measurement == test_description::latency_measurement::END_TO_END) {
+            m_custom_description.timestamps.mode    = uce::timestamp_mode::TSTMP_SW;
+        }
+        else if(description.latency_measurement == test_description::latency_measurement::FULL) {
+            m_custom_description.timestamps.mode    = uce::timestamp_mode::TSTMP_ALL;
+        }
+    }
 
     // query (fixed)
     m_custom_description.query.enabled = false;
@@ -103,8 +111,7 @@ void iperf_server::load_test(test_description description) {
     // dynamic scenario (fixed)
     m_custom_description.dynamic_scenario.enabled = false;
 
-
-
+    m_results.custom.timestamps.clear();
     m_results.ethtool_statistic_start = metrics::get_ethtool_statistic(m_description.interface.server);
     m_results.ip_statistic_start      = metrics::get_ip_statistic(m_description.interface.server);
     m_results.netstat_statistic_start = metrics::get_netstat_statistic();

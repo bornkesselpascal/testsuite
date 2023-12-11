@@ -38,12 +38,11 @@ client_description test_control_parser::read_client_from_XML(std::string filenam
             description.dynamic_behavoir.mode = client_description::dynamic_behavoir::DISABLED;
         }
 
-        description.dynamic_behavoir.min   = std::stoi(root.child_value("min"));
-        description.dynamic_behavoir.max   = std::stoi(root.child_value("max"));
-        description.dynamic_behavoir.steps = std::stoi(root.child_value("steps"));
+        description.dynamic_behavoir.min   = std::stoi(dynamic_behavior.child_value("min"));
+        description.dynamic_behavoir.max   = std::stoi(dynamic_behavior.child_value("max"));
+        description.dynamic_behavoir.steps = std::stoi(dynamic_behavior.child_value("steps"));
     }
     else {
-        // Node does not exist.
         description.dynamic_behavoir.mode = client_description::dynamic_behavoir::DISABLED;
     }
 
@@ -108,6 +107,23 @@ client_description test_control_parser::read_client_from_XML(std::string filenam
     }
     else if(stress_location == "LOC_BOTH") {
         description.stress.location = test_description::stress::LOC_BOTH;
+    }
+
+    pugi::xml_node latency_measurement = root.child("latency_measurement");
+    if(latency_measurement) {
+        std::string mode = root.child_value("latency_measurement");
+        if(mode == "END_TO_END") {
+            description.latency_measurement = test_description::latency_measurement::END_TO_END;
+        }
+        else if(mode == "FULL") {
+            description.latency_measurement = test_description::latency_measurement::FULL;
+        }
+        else {
+            description.latency_measurement = test_description::latency_measurement::DISABLED;
+        }
+    }
+    else {
+        description.latency_measurement = test_description::latency_measurement::DISABLED;
     }
 
     return description;

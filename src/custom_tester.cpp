@@ -40,7 +40,7 @@ bool custom_tester_client::run(struct test_results::custom* results) {
     end_time.tv_sec = start_time.tv_sec + m_description.duration;
     end_time.tv_nsec = start_time.tv_nsec;
 
-    results->timestamps.reserve(2000000 * m_description.duration);
+    results->timestamps.reserve(2000 * m_description.duration);
     timestamp_record record_buffer;
 
     helpers::timer cycle_timer;
@@ -56,9 +56,11 @@ bool custom_tester_client::run(struct test_results::custom* results) {
         m_sut_client.send(buffer, m_description.datagram_size);
 
         if (m_description.timestamps.enabled) {
-            record_buffer.sequence_number = test_message->sequence_number;
-            record_buffer.m_snt_program = m_sut_client.client_timestamps.m_snt_program;
-            results->timestamps.push_back(record_buffer);
+            // if (test_message->sequence_number % 10000) {
+                record_buffer.sequence_number = test_message->sequence_number;
+                record_buffer.m_snt_program = m_sut_client.client_timestamps.m_snt_program;
+                results->timestamps.push_back(record_buffer);
+            // }
         }
 
         if(m_description.query.enabled) {
