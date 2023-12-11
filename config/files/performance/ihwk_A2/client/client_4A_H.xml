@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<client_description>
+	<path>/testsuite/4A_H/ihwk_A2</path>
+	<duration>100</duration>
+	<dynamic_behavior>
+		<mode>DATAGRAM_SIZE</mode>
+		<min>9080</min>
+		<max>64080</max>
+		<steps>10</steps>
+	</dynamic_behavior>
+	<target_connection>
+		<type>ST_UDP</type>
+		<client_ip>10.4.0.50</client_ip>
+		<server_ip>10.4.0.51</server_ip>
+		<port>8400</port>
+		<cycletime>1</cycletime>
+		<datagram_sizes>
+			<size>80</size>
+		</datagram_sizes>
+	</target_connection>
+	<interface>
+		<client>enp175s0f0</client>
+		<server>enp1s0f0</server>
+	</interface>
+	<service_connection>
+		<server_ip>10.4.0.51</server_ip>
+		<port>9300</port>
+	</service_connection>
+	<stress>
+		<type>NONE</type>
+		<num>0</num>
+		<location>LOC_BOTH</location>
+	</stress>
+	<latency_measurement>END_TO_END</latency_measurement>
+</client_description>
