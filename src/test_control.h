@@ -50,7 +50,8 @@ struct client_description {
         stress_location location;
     } stress;
 
-    enum test_description::latency_measurement latency_measurement = test_description::latency_measurement::DISABLED;
+    enum test_description::latency::measurement latency_measurement = test_description::latency::measurement::DISABLED;
+    bool latency_reduced = false;
 };
 
 struct server_description {

@@ -44,7 +44,8 @@ test_description test_description_builder::build(client_description description,
     tdb_ret.stress.num = description.stress.num;
     tdb_ret.stress.location = description.stress.location;
 
-    tdb_ret.latency_measurement = description.latency_measurement;
+    tdb_ret.latency.measurement = description.latency_measurement;
+    tdb_ret.latency.reduced_output = description.latency_reduced;
 
     return tdb_ret;
 }
@@ -139,19 +140,26 @@ void test_description_parser::write_to_XML(std::string filename, test_descriptio
     }
     }
 
-    switch(description.latency_measurement) {
-    case test_description::latency_measurement::DISABLED: {
+    switch(description.latency.measurement) {
+    case test_description::latency::measurement::DISABLED: {
         metadata_node.append_child("latency_measurement").text() = "DISABLED";
         break;
     }
-    case test_description::latency_measurement::END_TO_END: {
+    case test_description::latency::measurement::END_TO_END: {
         metadata_node.append_child("latency_measurement").text() = "END_TO_END";
         break;
     }
-    case test_description::latency_measurement::FULL: {
+    case test_description::latency::measurement::FULL: {
         metadata_node.append_child("latency_measurement").text() = "FULL";
         break;
     }
+    }
+
+    if(description.latency.reduced_output) {
+        metadata_node.append_child("latency_reduced").text() = "TRUE";
+    }
+    else {
+        metadata_node.append_child("latency_reduced").text() = "FALSE";
     }
 
 

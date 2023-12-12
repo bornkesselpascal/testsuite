@@ -38,13 +38,13 @@ iperf_client::iperf_client(test_description description) {
     m_custom_description.cycletime     = m_description.connection.cycletime;
 
     // timestamps (fixed)
-    if(description.latency_measurement != test_description::latency_measurement::DISABLED) {
+    if(description.latency.measurement != test_description::latency::measurement::DISABLED) {
         m_custom_description.timestamps.enabled = true;
 
-        if(description.latency_measurement == test_description::latency_measurement::END_TO_END) {
+        if(description.latency.measurement == test_description::latency::measurement::END_TO_END) {
             m_custom_description.timestamps.mode    = uce::timestamp_mode::TSTMP_SW;
         }
-        else if(description.latency_measurement == test_description::latency_measurement::FULL) {
+        else if(description.latency.measurement == test_description::latency::measurement::FULL) {
             m_custom_description.timestamps.mode    = uce::timestamp_mode::TSTMP_ALL;
         }
     }

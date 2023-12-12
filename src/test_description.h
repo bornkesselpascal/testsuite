@@ -47,11 +47,14 @@ struct test_description {
         } location;
     } stress;
 
-    enum latency_measurement {
-        DISABLED,
-        END_TO_END,
-        FULL,
-    } latency_measurement = test_description::latency_measurement::DISABLED;
+    struct latency {
+        enum measurement {
+            DISABLED,
+            END_TO_END,
+            FULL,
+        } measurement = test_description::latency::measurement::DISABLED;
+        bool reduced_output = false;
+    } latency;
 };
 
 typedef enum test_description::stress::type stress_type;

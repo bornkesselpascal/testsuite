@@ -109,21 +109,33 @@ client_description test_control_parser::read_client_from_XML(std::string filenam
         description.stress.location = test_description::stress::LOC_BOTH;
     }
 
-    pugi::xml_node latency_measurement = root.child("latency_measurement");
-    if(latency_measurement) {
+    if(root.child("latency_measurement")) {
         std::string mode = root.child_value("latency_measurement");
         if(mode == "END_TO_END") {
-            description.latency_measurement = test_description::latency_measurement::END_TO_END;
+            description.latency_measurement = test_description::latency::measurement::END_TO_END;
         }
         else if(mode == "FULL") {
-            description.latency_measurement = test_description::latency_measurement::FULL;
+            description.latency_measurement = test_description::latency::measurement::FULL;
         }
         else {
-            description.latency_measurement = test_description::latency_measurement::DISABLED;
+            description.latency_measurement = test_description::latency::measurement::DISABLED;
         }
     }
     else {
-        description.latency_measurement = test_description::latency_measurement::DISABLED;
+        description.latency_measurement = test_description::latency::measurement::DISABLED;
+    }
+
+    if(root.child("latency_reduced")) {
+        std::string reduced = root.child_value("latency_reduced");
+        if(reduced == "TRUE") {
+            description.latency_reduced = true;
+        }
+        else {
+            description.latency_reduced = false;
+        }
+    }
+    else {
+        description.latency_reduced = false;
     }
 
     return description;
