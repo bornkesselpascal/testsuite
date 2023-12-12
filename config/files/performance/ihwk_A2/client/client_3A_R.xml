@@ -32,4 +32,5 @@
 		<location>LOC_BOTH</location>
 	</stress>
 	<latency_measurement>END_TO_END</latency_measurement>
+	<latency_reduced>TRUE</latency_reduced>
 </client_description>
