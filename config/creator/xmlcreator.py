@@ -50,6 +50,10 @@ def create_client_xml(client_name, client_ip, client_port, client_interface, ser
     # Create 'latency_measurement' element
     ET.SubElement(root, "latency_measurement").text = test_latency
 
+    # Check if client ip or server ip contain '2' or '3' after the first colon
+    if '2' in client_ip.split('.')[1] or '3' in client_ip.split('.')[1] or '2' in server_ip.split('.')[1] or '3' in server_ip.split('.')[1]:
+        ET.SubElement(root, "latency_reduced").text = "TRUE"
+
     # Create the XML tree and write it to a file
     tree = ET.ElementTree(root)
     if hasattr(ET, 'indent'):
